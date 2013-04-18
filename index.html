@@ -2,17 +2,62 @@
 <html><head>
     <meta charset="utf-8">
     <title>Chapter sample</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+      body { max-width: 50em; }
+      svg.example.output {
+        display: block; background: #FBFBFB;
+        margin: 2em 4em; padding: 1em;
+        max-width: 20em;
+        max-height: 20em;
+      }
+      code.example {
+        display: block; background: #DDD;
+        margin: 2em 5em; padding: 1em;
+        white-space: pre;
+        overflow: auto;
+      }
+    </style>
 </head><body>
 
 <h1>D3.js in Awesome</h1>
 
 <h2>What is D3.js?</h2>
-
 <h2>Showing data using SVG</h2>
+
+(Finish with chart referenced in animation chapter)
+
+<!-- TYPING -->
 
 <h2>Animated transitions</h2>
 
+We've turned all sorts of data into all sorts of charts.
+
+These charts communicate well and look great, but are probably out of date within a few trillion CPU cycles…that's what, ten minutes in human years? The message you need convey may be constantly changing. Otherwise, if the underlying *data* doesn't change, why not let viewers change how it's *presented* to better understand the information?
+
 <h3>Letting charts get lively</h3>
+
+In the next chapter we'll see how to add this user interaction, and in Chapter 6 we'll look at various ways your code can best manage the changing state of the data it's displaying. For now, let's continue focusing on what the viewer sees, the visible results.
+
+Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data? Let's take our pie chart from the last chapter:
+
+<svg class="example output"></svg>
+<script type="x-book/x-sample">
+var layout = d3.layout.pie().sort(null).value(function (d) { return d.amount; }),
+    generator = d3.svg.arc().outerRadius(10),
+    scale = d3.scale.category10();
+
+// TODO: add labels, c.f. http://bl.ocks.org/enjalot/1203641
+
+d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout)
+  .enter().append('svg:path').attr('d', generator).attr('fill', function (d,i) { return scale(i); });  
+</script>
+
+For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly.
+
+That's our first problem.
+
+
 <h3>Same old operators, brand new data</h3>
 <h3>Object persistence with relational joins</h3>
 <h3>How relational joins work</h3>
@@ -20,6 +65,39 @@
 <h3>Using CSS3/SVG alternatives to .transition()</h3>
 
 
+<!-- /TYPING -->
+
+
 <h2>Interactive data displays</h2>
 
+
+<script>
+
+DATA = {};
+
+DATA.timeUse = [
+  {activity:"Field work", amount:50},
+  {activity:"Choring animals", amount: 10},
+  {activity:"Meal time", amount: 8},
+  {activity:"Playing fiddle", amount: 2},
+  {activity:"Resting", amount:30}
+];
+
+</script>
+<script>
+d3.selectAll('script[type="x-book/x-sample"]').select(function () {
+  // run the sample to show the result (within the node immediately preceding it)
+  try {
+    eval("(function ("+d3.keys(DATA).join(',')+") {" + this.textContent + "})")
+      .apply(this.previousElementSibling, d3.values(DATA));
+  } catch (e) { console.warn(e); }
+  
+  // display the code within a visible block
+  var el = document.createElement('code');
+  el.textContent = this.textContent.trim();
+  this.parentNode.replaceChild(el, this)
+  return el;
+}).classed('example', true);
+</script>
 </body></html>
+
