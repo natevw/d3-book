@@ -26,6 +26,18 @@
 <h2>Showing data using SVG</h2>
 
 (Finish with chart referenced in animation chapter)
+<svg class="example output"></svg>
+<script type="x-book/x-sample">
+var layout = d3.layout.pie().sort(null).value(function (d) { return d.amount; }),
+    generator = d3.svg.arc().outerRadius(10),
+    scale = d3.scale.category10();
+
+// TODO: add labels, c.f. http://bl.ocks.org/enjalot/1203641
+
+d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout)
+  .enter().append('svg:path').attr('d', generator).attr('fill', function (d,i) { return scale(i); });
+</script>
+
 
 <!-- TYPING -->
 
@@ -39,26 +51,67 @@ These charts communicate well and look great, but are probably out of date withi
 
 In the next chapter we'll see how to add this user interaction, and in Chapter 6 we'll look at various ways your code can best manage the changing state of the data it's displaying. For now, let's continue focusing on what the viewer sees, the visible results.
 
-Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data? Let's take our pie chart from the last chapter:
+Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data? Let's take our pie chart from the last chapter. We've wrapped all the drawing code in a function, but it's otherwise identical:
 
 <svg class="example output"></svg>
 <script type="x-book/x-sample">
-var layout = d3.layout.pie().sort(null).value(function (d) { return d.amount; }),
-    generator = d3.svg.arc().outerRadius(10),
-    scale = d3.scale.category10();
-
-// TODO: add labels, c.f. http://bl.ocks.org/enjalot/1203641
-
-d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout)
-  .enter().append('svg:path').attr('d', generator).attr('fill', function (d,i) { return scale(i); });  
+function drawChart() {
+  var layout = d3.layout.pie().sort(null).value(function (d) { return d.amount; }),
+      generator = d3.svg.arc().outerRadius(10),
+      scale = d3.scale.category10();
+  
+  d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout)
+    .enter().append('svg:path').attr('d', generator).attr('fill', function (d,i) { return scale(i); });  
+}
+drawChart.call(this);
 </script>
 
-For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly.
+For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly. This doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we said in Chapter 1 involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and exiting set (extra elements).
 
-That's our first problem.
-
+If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with *additional* data, not with revised or removed data. Let's fix that.
 
 <h3>Same old operators, brand new data</h3>
+
+Here's how we need to write our <code>drawChart()</code> function to work properly when called multiple times, regardless of how the data changes in between calls:
+
+<svg class="example output"></svg>
+<script type="x-book/x-sample">
+function drawChart() {
+  var layout = d3.layout.pie().sort(null).value(function (d) { return d.amount; }),
+      generator = d3.svg.arc().outerRadius(10),
+      scale = d3.scale.category10();
+  
+  var boundSelection = d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout);
+  boundSelection.enter().append('svg:path');
+  // what we append/insert/select in the entering selection gets added to the main (updating) selection (from v2.0)
+  boundSelection.attr('d', generator).attr('fill', function (d,i) { return scale(i); });
+  boundSelection.exit().remove();
+}
+
+// generate the "original" DOM
+drawChart.call(this);
+
+// modify the data
+timeUse[0].amount /= 2;
+timeUse.push({
+  activity: "Gathering lumber",
+  amount: timeUse[0].amount
+});
+
+// now call it again, to update the DOM
+drawChart.call(this);
+</script>
+
+Here's what we did:
+
+<ul>
+<li>move the data-dependent operations from the enter to the updating selection</li>
+<li>handle any data removal that might occur via the exiting selection</li>
+</ul>
+
+But it blinks!
+
+
 <h3>Object persistence with relational joins</h3>
 <h3>How relational joins work</h3>
 <h3>Transition tips and tricks</h3>
