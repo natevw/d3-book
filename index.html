@@ -28,7 +28,7 @@
 …
 <!--
 (Finish with chart referenced in animation chapter)
-<svg class="example output"></svg>
+<svg></svg>
 <script type="x-book/x-sample">
 var layout = d3.layout.pie().value(function (d) { return d.amount; }),
     generator = d3.svg.arc().outerRadius(10),
@@ -46,24 +46,90 @@ d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path')
 
 <h2>Animated transitions</h2>
 
+<i>Mutability is our tragedy, but it's also our hope.</i> <!-- Fake Boethius: http://www.youtube.com/watch?v=66gmYLtJJuc (via Rapanthem) -->
+
 <p>
 We've turned all sorts of data into all sorts of charts.
 
 <p>
-These charts communicate well and look great, but are probably out of date within a few trillion CPU cycles…that's what, ten minutes in human years? The message you need convey may be constantly changing. Otherwise, if the underlying <em>data</em> doesn't change, why not let viewers change how it's <em>presented</em> to better understand the information?
+These charts communicate well and look great, but are probably out of date within a few trillion CPU cycles…that's what, ten minutes in human years? Oftentimes, the information you must share is constantly changing. Otherwise, if the underlying <em>data</em> doesn't change, why not let viewers change how it's <em>presented</em> to better understand the message it conveys?
 
 <p>
-In the next chapter we'll see how to add this user interaction, and in Chapter 6 we'll look at various ways your code can best manage the changing state of the data it's displaying.
+TBD: concrete example(s) of situations where either the information or its presentation is changing
+
+<p>
+This chapter focuses on how to handle changing data with D3. In the next chapter we'll see how to drive changes via user interaction, and in Chapter 6 we'll look at various ways your code can best manage the changing state of the data it's displaying. For now, though, let's continue focusing on "drawing" what the viewer sees: properly controlling the visible results.
 
 <h3>Same old operators, brand new data</h3>
 
 <p>
-For now, though, let's continue focusing on what the viewer sees, the visible results.
+Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data?
 
 <p>
-Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data? Let's take our pie chart from the last chapter. We've wrapped all the drawing code in a function, but it's otherwise identical:
+You may have noticed a strange little dance we've done in all our charts so far. It often looks something like this:
+<code class="example">d3.select('#container').selectAll('el.class').data(someArray)
+    .enter().append('el').classed('class', true);</code>
 
-<svg class="example output"></svg>
+<p>
+This seems a little repetive. It seems it'd simpler, easier, if we could just say something like this instead:
+<code class="example">d3.select('#container')
+    .addData(someArray).append('el').classed('class', true);</code>
+
+<p>
+Why does D3 make us <code>.selectAll('el.class')</code> within an empty element? It's because the entering selection we've been using afterwards is only the beginning.
+
+<p>
+As a matter of fact, in most of our examples it would have worked just as well to bind a data array to <code>.select('#emptyContainer').selectAll('santa-claus')</code> — doing so would have had the exact same effect, and we could still append whatever real element we needed for the entering selection. As soon as we have selected elements (or the lack thereof), D3 forgets what selector (or function!) got us that selection. It will happily insert whatever we later ask it to.
+
+<p>
+The reason we provide a selector which matches those elements we're about to add, is that it's the first step to <em>updating</em> these same elements should the data change later. As we create child elements for the <code>.enter()</code> selection, D3 binds the data to it and folds this newly created molecule into the <i>updating</i> selection. The updating selection is just the "main" selection, the one we had before we asked for the entering selection. If we keep a reference to the updating selection we can use it to, well, <em>update</em> the corresponding elements!
+
+<ul data-reveal>
+    <li style="color: grey">existing</li>
+</ul>
+<script type="x-book/x-sample">
+var boundSelection = d3.select(this).selectAll('li').data(["still exists!", "a brand new item"])
+boundSelection.enter().append('li');
+boundSelection.text(String);
+</script>
+
+<p>
+Just like when we append missing elements, D3 doesn't care what the original selection was that made them missing in the first place, D3 doesn't care where <em>non–</em> missing elements came from either. Existing elements in the DOM simply get paired with the bound data, start off already in the main updating selection, and make that much less work for the entering selection. When our sample code runs, the existing list item is actually preserved (as seen by its special style). There are two items in the array and only one element in the main selection, so the enter selection causes one new element to be inserted and (at least, ever since version 2 of the D3.js library) folded in to the main selection. Finally, all elements are updated so their text content matches the provided data.
+
+<p>
+Should the selector result in more elements than bound data items, these go into a special exiting set. 
+
+<ul data-reveal>
+    <li>too</li>
+    <li>many</li>
+    <li>elements</li>
+</ul>
+<script type="x-book/x-sample">
+var boundSelection = d3.select(this).selectAll('li').data(["just", "right"])
+boundSelection.text(String);
+boundSelection.exit().remove();
+</script>
+
+<p>
+We didn't <em>have</em> to remove the extra element, we could have applied any other operator (such as <code>.text('x_x')</code> — soon we'll see more practical cases) just as well.
+
+<p>
+In general, it's idiomatic to handle all three selection sets as follows:
+
+<code class="example">
+var selection = d3.select(container).selectAll('child');
+selection.enter().append('child').operator('key', STATIC_VALUE);
+selection.operator('key', function (dynamic) { return dynamic.value; })
+selection.exit().remove();
+</code>
+
+<p>
+First we add what's missing, then we update what's there, then we clean up what shouldn't be. By following this general pattern, even when it's not immediately necessary, we lay the groundwork for reusable charts. Any "extra" work, e.g. handling an exit selection we assume will never contain elements, has relatively little overhead until it becomes necessary after all in the development lifecyle.
+
+<p>
+Now let's take our pie chart from the last chapter. We've wrapped all the drawing code in a function, but it's otherwise identical:
+
+<svg></svg>
 <script type="x-book/x-sample">
 function drawChart() {
   var layout = d3.layout.pie().value(function (d) { return d.amount; }),
@@ -77,17 +143,17 @@ drawChart.call(this);
 </script>
 
 <p>
-For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we said in Chapter 1 involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and exiting set (extra elements).
+For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we see now involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and the exiting set (extra elements).
 
 <p>
-If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data all needs to fit within the same space each time, even that  Let's fix that.
+If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data all needs to fit within the same space each time, it'd be rather difficult to add data without revising the rest. So this isn't gonna work. Let's fix that.
 
 <h3>Letting charts get lively</h3>
 
 <p>
 Here's how we need to write our <code>drawChart()</code> function so it works properly when called multiple times, regardless of how the data changes in between calls:
 
-<svg class="example output"></svg>
+<svg></svg>
 <script type="x-book/x-sample">
 function drawChart() {
   var layout = d3.layout.pie().value(function (d) { return d.amount; }),
@@ -130,18 +196,18 @@ function randomizeData() {
 </script>
 
 <p>
-Here's what we had to do:
+Here's what we had to change:
 
 <ul>
-<li>move the data-dependent operations from the enter to the *updating* selection</li>
-<li>handle any data removal that might occur via the exiting selection</li>
+<li>move the data-dependent operations from the <i>enter</i> to the <i>updating</i> selection</li>
+<li>handle any data removal that might occur via the <i>exiting</i> selection</li>
 </ul>
 
 <p>
 This achieves the immediate goal. Whenver the data changes we are able to update the DOM accordingly, and the viewer can always see the correct data.
 
 <p>
-Well…sort of. In practice, it's really hard to actually see which data changed and how. It just blinks!
+Well…sort of. In practice, it's really hard to actually <em>see</em> which data changed, and how. It just flashes to its new state! To our eyes, the visualization sort of vanishes and sort of was always there. Any sense of continuity is shattered <i>dramatic pause, dramatic voice</i> in the blink of an eye.
 
 <!--
 c.f. http://vis.berkeley.edu/papers/animated_transitions/
@@ -162,8 +228,49 @@ Animation has an aesthetic aspect, too, just as static visualization does. One a
 <p>
 As you might have come to expect, with D3 there is a succint but powerful way to animate a DOM change. Simply apply the <code>.transition()</code> operator to any selection to yield some very useful specialized behaviour:
 
-<code class=example>
-boundSelection<b>.transition()</b>.attr('d', generator).attr('fill', function (d,i) { return scale(i); });
+<svg></svg>
+<script type="x-book/x-sample" data-hidden>
+function drawChart() {
+  var layout = d3.layout.pie().value(function (d) { return d.amount; }),
+      generator = d3.svg.arc().outerRadius(10),
+      scale = d3.scale.category10();
+  
+  var boundSelection = d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout);
+  boundSelection.enter().append('svg:path');
+  boundSelection.transition().attr('d', generator).attr('fill', function (d,i) { return scale(i); });
+  boundSelection.exit().remove();
+}
+
+// generate the "original" DOM
+drawChart.call(this);
+
+// redraw changed data every 2.5 seconds
+window.setInterval(function () {
+  randomizeData();
+  drawChart.call(this);
+}.bind(this), 2500);
+
+
+var originalLength = timeUse.length;      // used for toggling length
+function randomizeData() {
+  // modify the number of items
+  if (timeUse.length === originalLength) timeUse.push({
+    activity: "Gathering lumber"
+  });
+  else timeUse.pop();
+  
+  // "randomly" allocate percentages
+  var total = 100;
+  timeUse.forEach(function (d) {
+    d.amount = total * Math.random() / 2;
+    total -= d.amount;
+  });
+  timeUse[timeUse.length - 1].amount += total;
+}
+</script>
+
+<code class=example>  // in drawChart…
+  boundSelection<b>.transition()</b>.attr('d', generator).attr('fill', function (d,i) { return scale(i); });
 </code>
 
 <p>
@@ -174,21 +281,45 @@ Instead of setting the <var>d</var> and <var>fill</var> elements to the provided
 Interpolation in D3 is actually very simple: the default interpolator simply looks looks for any number(s) in the current and target values and steps between them. There are a few simple ways to adjust how the animation progresses. A transitioning selection adds <code>.delay(<i>…</i>)</code> and <code>.duration(<i>…</i>)</code> operators which both take a millisecond value as their only parameter. There is also an <code>.ease(<i>…</i>)</code> parameter that allows customizing the animation timing curve, for example passing the shortcut string "cubic-in-out" will essentially "fade" the animation's speed as it starts and finishes.
 <p>
 The default interpolation works surprisingly well for a variety of situations: it can even do a servicable job of warping from one complete set of SVG path vertices to another, as we see in this pie chart example. If the default interpolation is not sophisticated enough, you can actually pass customized interpolators to additional transition operators (<code>.attrTween()</code> and <code>.styleTween()</code> or even the raw <code>.tween()</code> operator. We'll dive deeper into this later in this chapter.
-
-<p>
-TBD: animation easing and such also easily merit its own expansion  — but might be better to defer this discussion until later in the chapter too
 <p>
 Note that in all cases the target value is calculated immediately. That is, before the call to <code>.transition().<i>someOperator</i>(<i>someFunctionValue</i>)</code> returns, your <code>someFunctionValue</code> will have already been used to decide the target values for all elements. If the underlying data changes while the transition timer is causing redraw events, this will <em>not</em> effect what the user sees — unless of course you apply a replacement transition by e.g. calling our <code>drawChart()</code> code again. This case is really not much different; the new transition will animate the DOM from its current (potentially halfway through an earlier transition) to the (new) target state.
 
 <h3>Object persistence with relational joins</h3>
-
-<pre>
-example above: items still changing color, etc.
-</pre>
-
 <h3>How relational joins work</h3>
+
+<p>
+Our chart is now correct after every update, but there's one potentially important piece we're missing. In our pie chart example so far, our data changes came in a relatively simple form, and due to the "update every relevant path property" nature of our drawing, we haven't actually missed it. So now that you have an aching longing in your heart for this missing knowlege…
+
+<p>
+TBD: as this especially derptastic introduction indicates…our pie chart is not really the best example to introduce this. Mike Bostock uses <a href="http://mbostock.github.io/d3/tutorial/bar-2.html">an example where elements get unshifted</a> from the front of a bar chart's array to better illustrate the need for what he terms "object constancy". However, the need for this may be even simpler to illustrate in another chapter.
+
+<!-- c.f. http://bost.ocks.org/mike/join/ -->
+
+<p>
+… [using .data binding to associate existing DOM elements (usually via the data bound on them) with new versions of their data] …
+
+
 <h3>Transition tips and tricks</h3>
+
+<p>
+TBD: when/how to use sort/order
+
+<p>
+TBD: dive into smoother entrance/exit example (i.e. appending before starting transition, how remove works after fading opacity)
+
+<p>
+TBD: dive deeper into staging sequential animations
+
+<p>
+TBD: discuss manual tweening
+
+<p>
+TBD: animation easing and such also easily merit its own expansion — might need a bit more detail above, however
+
 <h3>Using CSS3/SVG alternatives to .transition()</h3>
+
+<p>
+TBD: make sure readers are aware of CSS3 transitions and SVG animation, which are potentially more efficient ways of transitioning data. Show at least one example of each, triggering the necessary stuff via D3 of course.
 
 
 <!-- /TYPING -->
@@ -212,16 +343,29 @@ DATA.timeUse = [
 </script>
 <script>
 d3.selectAll('script[type="x-book/x-sample"]').select(function () {
+  // show the container properly and reveal its soure if requested
+  var container = this.previousElementSibling;
+  container.classList.add('example');
+  container.classList.add('output');
+  if ('reveal' in container.dataset) {
+      var el = document.createElement('code');
+      delete container.dataset.reveal;
+      el.textContent = container.outerHTML;
+      el.classList.add('example');
+      el.classList.add('source');
+      this.parentNode.insertBefore(el, this);
+  }
+  
   // run the sample to show the result (within the node immediately preceding it)
   try {
     eval("(function ("+d3.keys(DATA).join(',')+") {" + this.textContent + "})")
-      .apply(this.previousElementSibling, d3.values(DATA));
+      .apply(container, d3.values(DATA));
   } catch (e) { console.warn(e); }
   
   // display the code within a visible block
   var el = document.createElement('code');
   el.textContent = this.textContent.trim();
-  this.parentNode.replaceChild(el, this)
+  if (!('hidden' in this.dataset)) this.parentNode.replaceChild(el, this)
   return el;
 }).classed('example', true);
 </script>
