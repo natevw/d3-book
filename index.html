@@ -44,7 +44,7 @@ d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path')
 
 <!-- TYPING -->
 
-<h2>Animated transitions</h2>
+<h2>Animated transitions for changing data</h2>
 
 <i>Mutability is our tragedy, but it's also our hope.</i> <!-- Fake Boethius: http://www.youtube.com/watch?v=66gmYLtJJuc (via Rapanthem) -->
 
@@ -52,13 +52,13 @@ d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path')
 We've turned all sorts of data into all sorts of charts.
 
 <p>
-These charts communicate well and look great, but are probably out of date within a few trillion CPU cycles…that's what, ten minutes in human years? Oftentimes, the information you must share is constantly changing. Otherwise, if the underlying <em>data</em> doesn't change, why not let viewers change how it's <em>presented</em> to better understand the message it conveys?
+These charts communicate well and look great, but are probably out of date within a few trillion CPU cycles…that's what, ten minutes in human years? Oftentimes, the information you must share is constantly changing. Otherwise, if the underlying <em>data</em> doesn't change, why not let viewers change which data is <em>presented</em> to better understand the message it conveys?
 
 <p>
-TBD: concrete example(s) of situations where either the information or its presentation is changing
+It might be that you need to display a live stream of realtime information in a dashboard; it might be that a local or remote user is editing a work-in-progress dataset; it might be that you are loading data over the network in small pieces; or you may be allowing the user to select and deselect various subsets of the data. Chances are, though, at some point the visualization that's smack dab in the middle of their screen will no longer be the data the user needs to see.
 
 <p>
-This chapter focuses on how to handle changing data with D3. In the next chapter we'll see how to drive changes via user interaction, and in Chapter 6 we'll look at various ways your code can best manage the changing state of the data it's displaying. For now, though, let's continue focusing on "drawing" what the viewer sees: properly controlling the visible results.
+This chapter focuses on how to handle changing data with D3. In the next chapter we'll see how to drive dataset changes via user interaction, and later on in Chapter 6 we'll look at ways your higher-level code can best manage the changing state of the data it's displaying. For now, though, let's continue our focus on "drawing" what the viewer sees, properly controlling the visible results, even when the underlying data is in a state of flux.
 
 <h3>Same old operators, brand new data</h3>
 
@@ -71,18 +71,18 @@ You may have noticed a strange little dance we've done in all our charts so far.
     .enter().append('el').classed('class', true);</code>
 
 <p>
-This seems a little repetive. It seems it'd simpler, easier, if we could just say something like this instead:
+This seems a little repetive. We're doing one thing — adding an element with some class — but we seem to say so twice, once when we <code>selectAll</code> and once as we <code>append</code>. It seems it'd simpler, easier, if we could just say something like this instead:
 <code class="example">d3.select('#container')
     .addData(someArray).append('el').classed('class', true);</code>
 
 <p>
-Why does D3 make us <code>.selectAll('el.class')</code> within an empty element? It's because the entering selection we've been using afterwards is only the beginning.
+Why does D3 make us <code>.selectAll('el.class')</code> within an empty element? The first time we do so, there's nobody home. We know this, and deep down inside D3 probably knows this too; it certainly finds out soon enough. We select what we're about to add anyway, because the entering selection — all we've been using so far — is only the beginning.
 
 <p>
-As a matter of fact, in most of our examples it would have worked just as well to bind a data array to <code>.select('#emptyContainer').selectAll('santa-claus')</code> — doing so would have had the exact same effect, and we could still append whatever real element we needed for the entering selection. As soon as we have selected elements (or the lack thereof), D3 forgets what selector (or function!) got us that selection. It will happily insert whatever we later ask it to.
+As a matter of fact, in most of our examples it would have worked just as well to bind a data array to <code>.select('#emptyContainer').select('santa-claus')</code> — doing so would have had the exact same effect, and we could still append whatever real elements we needed for the entering selection. As soon as we have selected elements or the lack thereof, D3 forgets what selector string (or function!) generated that selection. It will happily insert whatever we later ask it to, regardless if what we add matches the original selector.
 
 <p>
-The reason we provide a selector which matches those elements we're about to add, is that it's the first step to <em>updating</em> these same elements should the data change later. As we create child elements for the <code>.enter()</code> selection, D3 binds the data to it and folds this newly created molecule into the <i>updating</i> selection. The updating selection is just the "main" selection, the one we had before we asked for the entering selection. If we keep a reference to the updating selection we can use it to, well, <em>update</em> the corresponding elements!
+The reason we provide a <em>matching</em> selector for those elements we're about to add, is that it's the first step to <em>updating</em> these same elements should the data change later. As we create child elements for the <code>.enter()</code> selection, D3 binds the data to them and folds each newly created data–DOM molecule into the <i>updating</i> selection. The updating selection is just the "main" selection, the one the chained method calls were returning before we asked for the entering selection. If we keep a reference to the updating selection we can use it to…well… <em>update</em> the corresponding elements!
 
 <ul data-reveal>
     <li style="color: grey">existing</li>
@@ -94,10 +94,13 @@ boundSelection.text(String);
 </script>
 
 <p>
-Just like when we append missing elements, D3 doesn't care what the original selection was that made them missing in the first place, D3 doesn't care where <em>non–</em> missing elements came from either. Existing elements in the DOM simply get paired with the bound data, start off already in the main updating selection, and make that much less work for the entering selection. When our sample code runs, the existing list item is actually preserved (as seen by its special style). There are two items in the array and only one element in the main selection, so the enter selection causes one new element to be inserted and (at least, ever since version 2 of the D3.js library) folded in to the main selection. Finally, all elements are updated so their text content matches the provided data.
+When we appended missing elements, D3 didn't care what the original selection was that yielded them missing; likewise when we make this selection anew D3 doesn't care where its <em>non–</em>missing elements originally came from either. Any elements already in the DOM simply get paired with the bound data, start off already in the main updating selection, and make that much less work for the entering selection.
 
 <p>
-Should the selector result in more elements than bound data items, these go into a special exiting set. 
+Becaue of this, when our sample code runs, the existing <code>&lt;li></code> is actually preserved (as seen by its special style). It doesn't get recreated each time. It starts out as the only element in the main selection. There are two items in the array but only this one element, so after binding the array as that selection's data, the enter set must insert one new element. Then (at least, ever since v2.0 of the D3.js library) it folds the appended element in to the main selection. Finally, all elements are updated so their text content matches the provided data.
+
+<p>
+Should the selector result in more elements than bound data items, these go into a special exiting set:
 
 <ul data-reveal>
     <li>too</li>
@@ -116,18 +119,17 @@ We didn't <em>have</em> to remove the extra element, we could have applied any o
 <p>
 In general, it's idiomatic to handle all three selection sets as follows:
 
-<code class="example">
-var selection = d3.select(container).selectAll('child');
+<code class="example">var selection = d3.select(container).selectAll('child');
 selection.enter().append('child').operator('key', STATIC_VALUE);
 selection.operator('key', function (dynamic) { return dynamic.value; })
 selection.exit().remove();
 </code>
 
 <p>
-First we add what's missing, then we update what's there, then we clean up what shouldn't be. By following this general pattern, even when it's not immediately necessary, we lay the groundwork for reusable charts. Any "extra" work, e.g. handling an exit selection we assume will never contain elements, has relatively little overhead until it becomes necessary after all in the development lifecyle.
+First we add what's missing, then we update what's there, then we clean up what shouldn't be. By following this general pattern, even when it's not immediately necessary, we lay the groundwork for reusable charts. Any "extra" work, e.g. handling an exit selection for we assume will never go missing, has relatively little overhead unless it becomes necessary, perhaps later in your code's development lifecyle.
 
 <p>
-Now let's take our pie chart from the last chapter. We've wrapped all the drawing code in a function, but it's otherwise identical:
+Now let's go back to our pie chart from the last chapter. We've wrapped all the drawing code in a function, so we could apply it more than once, but it's otherwise identical:
 
 <svg></svg>
 <script type="x-book/x-sample">
@@ -143,7 +145,7 @@ drawChart.call(this);
 </script>
 
 <p>
-For each sample data item, we simply append the SVG element which will represent it visually and set its properties accordingly. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we see now involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and the exiting set (extra elements).
+For each sample data item, we simply append the SVG <code>&lt;path></code> element which will represent the item visually, then set the element's properties with whatever segments are necesary to draw it. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we see now involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and the exiting set (extra elements).
 
 <p>
 If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data all needs to fit within the same space each time, it'd be rather difficult to add data without revising the rest. So this isn't gonna work. Let's fix that.
@@ -162,7 +164,7 @@ function drawChart() {
   
   var boundSelection = d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout);
   boundSelection.enter().append('svg:path');
-  // what we append/insert/select in the entering selection gets added to the main (updating) selection (from v2.0)
+  // what we append/insert/select in the entering selection gets added to the main (i.e. updating) selection since v2.0
   boundSelection.attr('d', generator).attr('fill', function (d,i) { return scale(i); });
   boundSelection.exit().remove();
 }
@@ -177,7 +179,8 @@ window.setInterval(function () {
 }.bind(this), 2500);
 
 
-var originalLength = timeUse.length;      // used for toggling length
+/* TBD: probably hide this stuff in printed listing */
+var originalLength = timeUse.length;
 function randomizeData() {
   // modify the number of items
   if (timeUse.length === originalLength) timeUse.push({
@@ -196,12 +199,14 @@ function randomizeData() {
 </script>
 
 <p>
-Here's what we had to change:
+Here's what we had to change to make our chart update properly:
 
 <ul>
-<li>move the data-dependent operations from the <i>enter</i> to the <i>updating</i> selection</li>
+<li>move all the data-dependent operations from the <i>enter</i> to the <i>updating</i> selection (the static properties should still only be set initially for efficiency, however)</li>
 <li>handle any data removal that might occur via the <i>exiting</i> selection</li>
 </ul>
+
+Remember: first add what's missing, then update what's there, and finally clean up what is no longer needed.
 
 <p>
 This achieves the immediate goal. Whenver the data changes we are able to update the DOM accordingly, and the viewer can always see the correct data.
@@ -306,6 +311,9 @@ TBD: when/how to use sort/order
 
 <p>
 TBD: dive into smoother entrance/exit example (i.e. appending before starting transition, how remove works after fading opacity)
+
+<p>
+TBD: handling subselections when modifying
 
 <p>
 TBD: dive deeper into staging sequential animations
