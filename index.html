@@ -58,12 +58,23 @@ These charts communicate well and look great, but are probably out of date withi
 It might be that you need to display a live stream of realtime information in a dashboard; it might be that a local or remote user is editing a work-in-progress dataset; it might be that you are loading data over the network in small pieces; or you may be allowing the user to select and deselect various subsets of the data. Chances are, though, at some point the visualization that's smack dab in the middle of their screen will no longer be the data the user needs to see.
 
 <p>
-This chapter focuses on how to handle changing data with D3. In the next chapter we'll see how to drive dataset changes via user interaction, and later on in Chapter 6 we'll look at ways your higher-level code can best manage the changing state of the data it's displaying. For now, though, let's continue our focus on "drawing" what the viewer sees, properly controlling the visible results, even when the underlying data is in a state of flux.
+There are two main aspects we need to cover in regards to data changes. The first is dealing with DOM elements that already represent data, instead of the empty slates we've been drawing into. For that we'll need to learn more about how D3 selections and data binding works — where the "entering" selection comes from and how to use the "updating" and "exiting" selection sets as well. The persistence element of the other aspect will also need an acquaintance with "relational joins" that re-match updating data items with the updating DOM.
+
+<p>
+By the time we can fully synchronize any DOM selection with the most up-to-date data, we'll already be tackling the second aspect: smoothly transitioning the DOM between its old and new states. Animated transitions can be very simple or very complex to implement; just a dozen or so characters dropped in is everything needed for many, but D3 offers a wide range of animation options and overrides which we'll cover.
+
+<p>
+Once we learn all those techniques, though, we'll conclude with a friendly reminder that JavaScript is no longer the only way to animate DOM transitions. The animation concepts we learned via <em>D</em>3 often can — and perhaps should! — be translated into <em>CSS</em>3 when targeting modern browsers, and this is no problem for the library either.
+
+<p>
+In short, this chapter explores how to handle changes "the D3 way". In the next chapter we'll see how to <em>drive</em> dataset changes via user interaction, and later on (in Chapter 6) we'll look at ways your higher-level code can best <em>manage</em> the changing state of the data it's displaying. For now, though, let's continue our focus on "drawing" what the viewer sees, properly controlling the visible results, even when the underlying data is in a state of flux.
 
 <h3>Same old operators, brand new data</h3>
 
 <p>
 Remember how we said D3.js makes it easy not just to create a data display, but to update an existing document with changed data?
+
+<h4>The entering selection</h4>
 
 <p>
 You may have noticed a strange little dance we've done in all our charts so far. It often looks something like this:
@@ -80,6 +91,8 @@ Why does D3 make us <code>.selectAll('el.class')</code> within an empty element?
 
 <p>
 As a matter of fact, in most of our examples it would have worked just as well to bind a data array to <code>.select('#emptyContainer').select('santa-claus')</code> — doing so would have had the exact same effect, and we could still append whatever real elements we needed for the entering selection. As soon as we have selected elements or the lack thereof, D3 forgets what selector string (or function!) generated that selection. It will happily insert whatever we later ask it to, regardless if what we add matches the original selector.
+
+<h4>Updating the selection</h4>
 
 <p>
 The reason we provide a <em>matching</em> selector for those elements we're about to add, is that it's the first step to <em>updating</em> these same elements should the data change later. As we create child elements for the <code>.enter()</code> selection, D3 binds the data to them and folds each newly created data–DOM molecule into the <i>updating</i> selection. The updating selection is just the "main" selection, the one the chained method calls were returning before we asked for the entering selection. If we keep a reference to the updating selection we can use it to…well… <em>update</em> the corresponding elements!
@@ -99,6 +112,8 @@ When we appended missing elements, D3 didn't care what the original selection wa
 <p>
 Becaue of this, when our sample code runs, the existing <code>&lt;li></code> is actually preserved (as seen by its special style). It doesn't get recreated each time. It starts out as the only element in the main selection. There are two items in the array but only this one element, so after binding the array as that selection's data, the enter set must insert one new element. Then (at least, ever since v2.0 of the D3.js library) it folds the appended element in to the main selection. Finally, all elements are updated so their text content matches the provided data.
 
+<h4>The exiting set</h4>
+
 <p>
 Should the selector result in more elements than bound data items, these go into a special exiting set:
 
@@ -116,6 +131,8 @@ boundSelection.exit().remove();
 <p>
 We didn't <em>have</em> to remove the extra element, we could have applied any other operator (such as <code>.text('x_x')</code> — soon we'll see more practical cases) just as well.
 
+<h4>All sets in concert</h4>
+
 <p>
 In general, it's idiomatic to handle all three selection sets as follows:
 
@@ -129,7 +146,7 @@ selection.exit().remove();
 First we add what's missing, then we update what's there, then we clean up what shouldn't be. By following this general pattern, even when it's not immediately necessary, we lay the groundwork for reusable charts. Any "extra" work, e.g. handling an exit selection for we assume will never go missing, has relatively little overhead unless it becomes necessary, perhaps later in your code's development lifecyle.
 
 <p>
-Now let's go back to our pie chart from the last chapter. We've wrapped all the drawing code in a function, so we could apply it more than once, but it's otherwise identical:
+Let's go back to our pie chart from the last chapter. We've wrapped all the drawing code in a function, so we could apply it more than once, but it's otherwise identical:
 
 <svg></svg>
 <script type="x-book/x-sample">
@@ -150,7 +167,7 @@ For each sample data item, we simply append the SVG <code>&lt;path></code> eleme
 <p>
 If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data all needs to fit within the same space each time, it'd be rather difficult to add data without revising the rest. So this isn't gonna work. Let's fix that.
 
-<h3>Letting charts get lively</h3>
+<h4>Tuning our orchestration</h4>
 
 <p>
 Here's how we need to write our <code>drawChart()</code> function so it works properly when called multiple times, regardless of how the data changes in between calls:
@@ -198,6 +215,8 @@ function randomizeData() {
 }
 </script>
 
+<h4>Review</h4>
+
 <p>
 Here's what we had to change to make our chart update properly:
 
@@ -211,8 +230,10 @@ Remember: first add what's missing, then update what's there, and finally clean 
 <p>
 This achieves the immediate goal. Whenver the data changes we are able to update the DOM accordingly, and the viewer can always see the correct data.
 
+<h3>Letting charts get lively</h3>
+
 <p>
-Well…sort of. In practice, it's really hard to actually <em>see</em> which data changed, and how. It just flashes to its new state! To our eyes, the visualization sort of vanishes and sort of was always there. Any sense of continuity is shattered <i>dramatic pause, dramatic voice</i> in the blink of an eye.
+Well…sort of. In practice, it's really hard to actually <em>see</em> which data changed, and how. It just flashes to its new state! To our eyes, the visualization sort of vanishes and sort of was always there. Any sense of continuity is shattered <i>dramatic pause</i> — in the blink of an eye.
 
 <!--
 c.f. http://vis.berkeley.edu/papers/animated_transitions/
@@ -221,8 +242,10 @@ http://bl.ocks.org/mbostock/1098617
 http://bl.ocks.org/mbostock/1346410
 -->
 
+<h4>Animation goes beyond entertainment</h4>
+
 <p>
-[diagram of e.g. stick figure walking frames]
+[illustrated frames of an eye closing/opening animation (perhaps annotated with some round underlying "tweened" data?)]
 
 <p>
 It would be much easier for our eyes to grasp what's happening if the visual change mimics a more physical change. To accomplish this, we will <em>animate</em> the change — we will cause the browser to rapidly display intermediate states of our visualization as if it were <em>transitioning</em> from the original to the modified presentation.
@@ -230,6 +253,9 @@ It would be much easier for our eyes to grasp what's happening if the visual cha
 To the eye, this will communicate motion. This motion helps the viewer better comprehend the change; just as a visualization aids spatial interpretation of numeric <em>data</em>, animation adds a kinetic understanding of quantitative or qualitative <em>change</em>.
 <p>
 Animation has an aesthetic aspect, too, just as static visualization does. One academic study of "Animated Transitions in Statistical Data Graphics" (Heer 2007) concluded subjects "felt that [animation] facilitated both improved understanding and increased engagement." There were more scientific results to their study of course, but these feelings matter too. A chart can be beautiful; a transition can be <em>fun</em>!
+
+<h4>Automatic animation in D3</h4>
+
 <p>
 As you might have come to expect, with D3 there is a succint but powerful way to animate a DOM change. Simply apply the <code>.transition()</code> operator to any selection to yield some very useful specialized behaviour:
 
@@ -279,17 +305,33 @@ function randomizeData() {
 </code>
 
 <p>
-Adding this method call does two things: it starts a clock ticking, and it returns a selection wrapped with transition-savvy replacements for all the usually <code>attr</code>/<code>property</code>/<code>style</code>/etc. (as well as providing some new ones, introduced soon).
+Adding this method call does two things: it starts a clock ticking, and it returns a selection wrapped with transition-savvy replacements for all the usual <code>attr</code>/<code>property</code>/<code>style</code>/… operators plus some new ones which we'll see soon.
 <p>
-Instead of setting the <var>d</var> and <var>fill</var> elements to the provided values immediately, these operators now simply store the desired target state internally and return immediately. In the background, the transition operator's clock (a <code>d3.timer()</code>, to be specific) is ticking at animation-rate intervals. On every tick, the transitions internal methods update the respective DOM state to an <em>interpolated</em> value between its original and the target setting.
+Instead of setting the elements' <var>d</var> and <var>fill</var> attributes to the provided values immediately, these operators now simply store the desired target state internally and return control to your code. In the background, the transition operator's clock (a <code>d3.timer()</code>, to be specific) is ready to fire at animation-rate intervals. On every tick, the transition's internal methods will update the respective DOM state to an <em>interpolated</em> value between its original and the target setting for that animation frame.
+
+<h4>The basic idea of interpolation</h4>
+
 <p>
 Interpolation in D3 is actually very simple: the default interpolator simply looks looks for any number(s) in the current and target values and steps between them. There are a few simple ways to adjust how the animation progresses. A transitioning selection adds <code>.delay(<i>…</i>)</code> and <code>.duration(<i>…</i>)</code> operators which both take a millisecond value as their only parameter. There is also an <code>.ease(<i>…</i>)</code> parameter that allows customizing the animation timing curve, for example passing the shortcut string "cubic-in-out" will essentially "fade" the animation's speed as it starts and finishes.
+
 <p>
 The default interpolation works surprisingly well for a variety of situations: it can even do a servicable job of warping from one complete set of SVG path vertices to another, as we see in this pie chart example. If the default interpolation is not sophisticated enough, you can actually pass customized interpolators to additional transition operators (<code>.attrTween()</code> and <code>.styleTween()</code> or even the raw <code>.tween()</code> operator. We'll dive deeper into this later in this chapter.
+
+
+<h4>Deterministic transition transactions</h4>
+
 <p>
 Note that in all cases the target value is calculated immediately. That is, before the call to <code>.transition().<i>someOperator</i>(<i>someFunctionValue</i>)</code> returns, your <code>someFunctionValue</code> will have already been used to decide the target values for all elements. If the underlying data changes while the transition timer is causing redraw events, this will <em>not</em> effect what the user sees — unless of course you apply a replacement transition by e.g. calling our <code>drawChart()</code> code again. This case is really not much different; the new transition will animate the DOM from its current (potentially halfway through an earlier transition) to the (new) target state.
 
+<p>
+This is a good thing. It gives you full, deterministic control over what is drawn and when. You don't have to worry about subsequent user actions or data modification events sullying your careful calculations. You needn't worry about partial modifications or intermediate states your data may go through between calls to selection operators — any course correction to the animation in progress on screen happens whenever <em>you're</em> ready to apply it.
+
+
 <h3>Object persistence with relational joins</h3>
+
+<p>
+TBD: this topic needs some coverage here, but might be better to save in-depth discussion for the interaction chapter where its inner workings are more relevant.
+
 <h3>How relational joins work</h3>
 
 <p>
@@ -298,7 +340,7 @@ Our chart is now correct after every update, but there's one potentially importa
 <p>
 TBD: as this especially derptastic introduction indicates…our pie chart is not really the best example to introduce this. Mike Bostock uses <a href="http://mbostock.github.io/d3/tutorial/bar-2.html">an example where elements get unshifted</a> from the front of a bar chart's array to better illustrate the need for what he terms "object constancy". However, the need for this may be even simpler to illustrate in another chapter.
 
-<!-- c.f. http://bost.ocks.org/mike/join/ -->
+<!-- c.f. http://bost.ocks.org/mike/join/ and http://bost.ocks.org/mike/selection/ -->
 
 <p>
 … [using .data binding to associate existing DOM elements (usually via the data bound on them) with new versions of their data] …
