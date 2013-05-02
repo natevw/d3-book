@@ -146,7 +146,7 @@ selection.exit().remove();
 First we add what's missing, then we update what's there, then we clean up what shouldn't be. By following this general pattern, even when it's not immediately necessary, we lay the groundwork for reusable charts. Any "extra" work, e.g. handling an exit selection for we assume will never go missing, has relatively little overhead unless it becomes necessary, perhaps later in your code's development lifecyle.
 
 <p>
-Let's go back to our pie chart from the last chapter. We've wrapped all the drawing code in a function, so we could apply it more than once, but it's otherwise identical:
+Let's go back to our humble pie chart from the last chapter. We've wrapped all the drawing code in a function, so we could apply it more than once, but it's otherwise identical:
 
 <svg></svg>
 <script type="x-book/x-sample">
@@ -315,7 +315,7 @@ Instead of setting the elements' <var>d</var> and <var>fill</var> attributes to 
 Interpolation in D3 is actually very simple: the default interpolator simply looks looks for any number(s) in the current and target values and steps between them. There are a few simple ways to adjust how the animation progresses. A transitioning selection adds <code>.delay(<i>…</i>)</code> and <code>.duration(<i>…</i>)</code> operators which both take a millisecond value as their only parameter. There is also an <code>.ease(<i>…</i>)</code> parameter that allows customizing the animation timing curve, for example passing the shortcut string "cubic-in-out" will essentially "fade" the animation's speed as it starts and finishes.
 
 <p>
-The default interpolation works surprisingly well for a variety of situations: it can even do a servicable job of warping from one complete set of SVG path vertices to another, as we see in this pie chart example. If the default interpolation is not sophisticated enough, you can actually pass customized interpolators to additional transition operators (<code>.attrTween()</code> and <code>.styleTween()</code> or even the raw <code>.tween()</code> operator. We'll dive deeper into this later in this chapter.
+The default interpolation works surprisingly well for a variety of situations: it can even do a servicable job of warping from one complete set of SVG path vertices to another, as we see in this pie chart example. If the default interpolation is not capable enough, you can actually pass customized interpolators to additional transition operators (<code>.attrTween()</code> and <code>.styleTween()</code> or even the raw <code>.tween()</code> operator. We'll dive deeper into this later in the chapter.
 
 
 <h4>Deterministic transition transactions</h4>
@@ -339,6 +339,8 @@ Our chart is now correct after every update, but there's one potentially importa
 
 <p>
 TBD: as this especially derptastic introduction indicates…our pie chart is not really the best example to introduce this. Mike Bostock uses <a href="http://mbostock.github.io/d3/tutorial/bar-2.html">an example where elements get unshifted</a> from the front of a bar chart's array to better illustrate the need for what he terms "object constancy". However, the need for this may be even simpler to illustrate in another chapter.
+
+TBD-plan: maybe the best way to approach this is with small multiples! subtly encapsulate the chart drawing and then do a carousel (or sortable) display where existing pie charts are continously shifted around
 
 <!-- c.f. http://bost.ocks.org/mike/join/ and http://bost.ocks.org/mike/selection/ -->
 
