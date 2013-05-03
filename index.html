@@ -162,15 +162,15 @@ drawChart.call(this);
 </script>
 
 <p>
-For each sample data item, we simply append the SVG <code>&lt;path></code> element which will represent the item visually, then set the element's properties with whatever segments are necesary to draw it. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we see now involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and the exiting set (extra elements).
+This chart shows the amount of time spent on various activities in a day. For each sample data item, we simply append the SVG <code>&lt;path></code> element which will represent the item visually, then set the element's properties with whatever segments are necesary to draw it. This, however, doesn't support changing the visual representation when the data changes. If we change the data and run this code again, what will happen? D3 will join the changed data with the result of <code>.selectAll('path')</code>, which we see now involves dividing the selection into its three sets: the entering set (missing elements), the updating set (elements already present), and the exiting set (extra elements).
 
 <p>
-If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data all needs to fit within the same space each time, it'd be rather difficult to add data without revising the rest. So this isn't gonna work. Let's fix that.
+If we only handle the entering part of our selection, new elements will display as intended the first time but then will never change! This code will only work with <em>additional</em> data, not with revised or removed data. Of course, with something like a pie chart where the data always needs to fit within the same space (that whole "only 24 hours in a day" thing in this case), it'd be rather difficult to add data without revising the rest — if we spend time on a new activity we'll need to spend less time on at least one of the others. So our code right now isn't gonna work. Let's fix that.
 
 <h4>Tuning our orchestration</h4>
 
 <p>
-Here's how we need to write our <code>drawChart()</code> function so it works properly when called multiple times, regardless of how the data changes in between calls:
+Each day is different, and so we'd like to show the changes in various activities performed, and how much time spent on each, from day to day. Here's how we need to write our <code>drawChart()</code> function so it works properly when called multiple times, regardless of how the data changes in between calls:
 
 <svg></svg>
 <script type="x-book/x-sample">
@@ -215,6 +215,8 @@ function randomizeData() {
 }
 </script>
 
+Now whenever we call our <code>drawChart()</code> function, it correctly handles new, modified, and removed data items. We can now handle any reasonable change to our underlying daily time usage dataset, just by reapplying our function!
+
 <h4>Review</h4>
 
 <p>
@@ -250,7 +252,8 @@ http://bl.ocks.org/mbostock/1346410
 <p>
 It would be much easier for our eyes to grasp what's happening if the visual change mimics a more physical change. To accomplish this, we will <em>animate</em> the change — we will cause the browser to rapidly display intermediate states of our visualization as if it were <em>transitioning</em> from the original to the modified presentation.
 <p>
-To the eye, this will communicate motion. This motion helps the viewer better comprehend the change; just as a visualization aids spatial interpretation of numeric <em>data</em>, animation adds a kinetic understanding of quantitative or qualitative <em>change</em>.
+To the eye, this will communicate motion. This motion helps the viewer better comprehend the change; just as a visualization aids spatial interpretation of numeric <em>data</em>, animation adds a kinetic understanding of quantitative or qualitative <em>change</em>. In the case of our pie chart, we would get a better sense of how much a particular activity varied from day to day if we could watch it grow or shrink.
+
 <p>
 Animation has an aesthetic aspect, too, just as static visualization does. One academic study of "Animated Transitions in Statistical Data Graphics" (Heer 2007) concluded subjects "felt that [animation] facilitated both improved understanding and increased engagement." There were more scientific results to their study of course, but these feelings matter too. A chart can be beautiful; a transition can be <em>fun</em>!
 
