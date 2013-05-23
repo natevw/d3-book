@@ -39,12 +39,44 @@ D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments", which is an allitera
 D3 is different. It's a visualization library with no "chart" base class which, once instantiated, would insulate you from having to manipulate the DOM. It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
 
 <p>
-There are really only two fundamental interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
+There are really only two fundamental interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
 
 <p>
-Unfortunately, at times the task of designing a complex visualization using only a few simple constructs can be daunting. This book [helps how?]
-- showing how things really work in the small
-- showing the pieces fit together as a whole
+At first, unfortunately, the task of designing a complex visualization using only a few simple constructs can be daunting. Don't worry — this feeling will pass.
+
+<p>
+Soon enough, feeling overwhelmed will be replaced with <em>seeing</em> powerfully: first seeing the underlying data, then seeing the hidden logic that transformed it into a visualization, and always seeing the same patterns, reused and remixed and even repurposed. It <em>is</em> resuable base logic that D3 provides, just not usually at the "chart" level. D3 captures patterns can be reused for <em>anything</em> — not just stamping out some same old graph with only different data, but patterns reusable for totally new types of visualization and interaction! D3 handles maps and apps as well as it handles charts — and it does handle charts very well.
+
+<p>
+[three ways of seeing the same data]
+<div></div>
+<script type="x-book/x-sample">
+var majorElements = ["carbon", "hydrogen", "nitrogen", "oxygen", "calcium", "phosphorus"];
+
+// list
+// horizontal bars (character length)
+// labeled vertical bars
+
+// the repeate above, sorting alphabetically
+</script>
+
+<p>
+… discussion of each …
+
+<p>
+If we had more useful data — if for every chemical element we also had recorded its unique number of protons — we could perform more useful variations on the visualization. We could sort by this more meaningful number, or even arrange the elements not only in correct order but also so the visual distance between each was proportional to the difference in atomic number.
+
+<p>
+By learning to see the patterns, the similarities between how <em>every</em> visualization is made, you will also begin to quickly understand the <em>differences</em> as well.
+
+<p>
+So in that sense, this book is not a recipe book — there are too many delicious dishes to enumerate, and still more to be invented. …
+D3.js is not a fill-in-the-blank worksheet, it is a generative grammar.
+
+
+
+<li>showing how things really work in the small
+<li>showing the pieces fit together as a whole
 
 
 <h3>Combining documents and data</h3>
