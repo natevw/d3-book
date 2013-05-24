@@ -39,7 +39,7 @@ D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments", which is an allitera
 D3 is different. It's a visualization library with no "chart" base class which, once instantiated, would insulate you from having to manipulate the DOM. It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
 
 <p>
-There are really only two fundamental interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
+There are really only two core interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
 
 <p>
 At first, unfortunately, the task of designing a complex visualization using only a few simple constructs can be daunting. Don't worry — this feeling will pass.
@@ -113,14 +113,54 @@ Instead this book is about:
 
 <h2>Showing data using SVG</h2>
 
+<i>"Smoking is one of the leading causes of statistics."</i> <!-- http://en.wikipedia.org/w/index.php?title=Fletcher_Knebel&oldid=555451790 via: Fletcher Knebel, who keenly observed as far back as 1961 that "smoking is the leading cause of statistics" - http://www.salon.com/people/feature/2000/02/09/sevenvices/ -->
+
+<p>
+We've seen that D3 makes it easy to manipulate elements within document's object model to make them match data input, and we've said that D3's core patterns are applicable to a wide range of uses. It's time to prove it.
+
 <h3>Manipulating SVG’s DOM</h3>
-…SVG elements: path, text, g
 
+<p>
+It's also time to tackle what D3 is most famous for: graphs and charts!
 
+<p>
+We've been focusing on manipulating HTML's DOM. This DOM exposes the visible document as a tree of elements, each with its own meaning and each accepting attributes which we can use to modify how they are presented. Our options for presentation and styling these HTML elements leave a little to be desired, especially when it comes to drawing graphics content.
 
+<p>
+Fortunately, modern browsers expose another standardized DOM — one tailored specifically to display vector graphics! SVG is a [TBD: summary and brief history of standard].
+
+<p>
+[a nice vector graphic, annotated]
+
+<p>
+Manipulating SVG will be just like manipulating HTML: we'll use D3 to generate a selection of elements and then set attributes on these elements, making each display whatever information in whatever way we desire. To do this effectively we will finally begin our venture outside of D3's core selection API, and begin borrowing from its fantastic toolchest full of useful utilities.
 
 <h3>Overview of available SVG elements</h3>
-…
+
+<p>
+We've assumed you were already a bit familiar with HTML and CSS, and really didn't worry to much about the details as we learned the basic D3 concepts. We'll have to be a little more careful when it comes to SVG. While D3 will again make things look fairly high level, in order to see the patterns and picture what custom logic will be required, we need to have a pretty good idea what is really going on at the SVG level.
+
+<p>
+If you're already familar with vector graphics, either from other drawing frameworks or even from sketching shapes in an illustration app, great! SVG follows a pretty standard vector drawing model, built on the notion of shapes drawn relative to an invisible, adjustable grid, over top any "earlier" shapes drawn below. In SVG, these shapes are called <i>paths</i>, and the grid in which the virtual brush moves is called a [TBD: best term?].
+
+<p>
+[path/grids graphic]
+
+<p>
+Paths can be filled and/or simply left as stroked lines or outlines, and of course things like the colors used and the stroke and fills styles applied are all adjustable. SVG supports transparent colors, as well as even more advanced ways of combining (or "blending") colors with the content below. A more detailed explanation is beyond the scope of this chapter [TBD: appendix?] but here is a summary of how the elements and attributes of SVG determine what will be drawn in the document:
+
+<p>
+[TBD: table summarizing elements and their unique attributes] path, text, g 
+
+<p>
+There are a few more elements and a lot more attributes than are listed here, but these are all we'll be using to get started showing data with SVG.
+
+<p>
+TBD: deeper look at paths
+
+<p>
+TBD: deeper look at groups
+
 
 <h3>D3.js’s DOM manipulation operators</h3>
 …
