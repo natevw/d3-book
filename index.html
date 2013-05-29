@@ -17,6 +17,9 @@
         white-space: pre;
         overflow: auto;
       }
+      dt { display: inline-block; margin-right: 1ex; font-weight: bold; }
+      dd { margin: 0; }
+      tr.remove { color: lightgrey; }
     </style>
 </head><body>
 
@@ -141,25 +144,140 @@ Manipulating SVG will be just like manipulating HTML: we'll use D3 to generate a
 We've assumed you were already a bit familiar with HTML and CSS, and really didn't worry to much about the details as we learned the basic D3 concepts. We'll have to be a little more careful when it comes to SVG. While D3 will again make things look fairly high level, in order to see the patterns and picture what custom logic will be required, we need to have a pretty good idea what is really going on at the SVG level.
 
 <p>
-If you're already familar with vector graphics, either from other drawing frameworks or even from sketching shapes in an illustration app, great! SVG follows a pretty standard vector drawing model, built on the notion of shapes drawn relative to an invisible, adjustable grid, over top any "earlier" shapes drawn below. In SVG, these shapes are called <i>paths</i>, and the grid in which the virtual brush moves is called a [TBD: best term?].
+If you're already familar with vector graphics, either from other drawing frameworks or even from sketching shapes in an illustration app, great! SVG follows a pretty standard vector drawing model, built on the notion of shapes drawn relative to an invisible, adjustable grid of layers, over top any "earlier" shapes drawn below. In SVG, these vector shapes are called <i>paths</i>, and the layered grids in which the virtual brush moves are called <i>viewports</i>.
 
 <p>
-[path/grids graphic]
+[TBD: path "shapes" + viewport "layers" graphic?]
 
 <p>
 Paths can be filled and/or simply left as stroked lines or outlines, and of course things like the colors used and the stroke and fills styles applied are all adjustable. SVG supports transparent colors, as well as even more advanced ways of combining (or "blending") colors with the content below. A more detailed explanation is beyond the scope of this chapter [TBD: appendix?] but here is a summary of how the elements and attributes of SVG determine what will be drawn in the document:
 
-<p>
-[TBD: table summarizing elements and their unique attributes] path, circle, text, g 
+<table border>
+<thead>
+    <tr><th>SVG element</th><th>Details</th><th>Summary</th></tr>
+</thead>
+<tbody>
+    <tr><td>rect</td><td>
+        <dl>
+            <dt>x</dt><dt>y</dt>
+            <dd>Position of the "lower left" corner (numerically, not necessarily visually)</dd>
+            
+            <dt>width</dt><dt>height</dt>
+            <dd>Size of each side</dd>
+            
+            <dt>rx</dt><dt>ry</dt>
+            <dd>Corner rounding</dd>
+        </dl>
+        This represents a rectangle, or basic "box".
+    </td><td rowspan=100>TBD: diagrams</td></tr>
+    
+    <tr><td>image</td><td>
+        <dl>
+            <dt>x</dt><dt>y</dt>
+            <dd>Position of the "lower left" corner (numerically, not necessarily visually)</dd>
+            
+            <dt>width</dt><dt>height</dt>
+            <dd>Size of each side</dd>
+            
+            <dt>xlink:href</dt>
+            <dd>Image file</dd>
+        </dl>
+        Like a rectangle, but filled with RGBA pixel data from an external image source.
+    </td></tr>
+    
+    <tr><td>circle</td><td>
+        <dl>
+            <dt>cx</dt><dt>cy</dt>
+            <dd>Center position</dd>
+            
+            <dt>r</dt>
+            <dd>Radius</dd>
+        </dl>
+    </td></tr>
+    
+    <tr class=remove><td>ellipse</td><td>
+        <dl>
+            <dt>cx</dt><dt>cy</dt>
+            <dd>Center position</dd>
+            
+            <dt>rx</dt><dt>ry</dt>
+            <dd>Radius along each axis</dd>
+        </dl>
+        
+        NOTE: Being able to specify an ellipse directly can sometimes be handy, although a simple circle can also be drawn stretched (using an appropriate viewport transform, see below) to an ellipse shape as well.
+    </td></tr>
+    
+    <tr class=remove><td>line</td><td>
+        <dl>
+            <dt>x1</dt><dt>y1</dt>
+            <dd>Starting position</dd>
+            
+            <dt>x2</dt><dt>y2</dt>
+            <dd>Ending position</dd>
+        </dl>
+    </td></tr>
+    
+    <tr class=remove><td>polyline, polygon</td><td>
+        <dl>
+            <dt>points</dt>
+            <dd>List of positions along the path</dd>
+        </dl>
+        
+        These represent (respectively) an open or closed set of connected vertices.<br>
+        NOTE: the shape utilities provided by D3.js generate data for the <code>path</code> element instead.
+    </td></tr>
+    
+    <tr><td>text</td><td>
+        <dl>
+            <dt>x</dt><dt>y</dt>
+            <dd>Position of this element's content</dd>
+        </dl>
+        
+        Character data inside a <code>text</code> element will be rendered on the image.<br>
+        NOTE: although we won't use much of it, this element is not nearly so simple as presented here. SVG offers rich text features such as spans and links and even allows a curved text baseline given an arbitrary path.
+    </td></tr>
+    
+    <tr><td>path</td><td>
+        <dl>
+            <dt>d</dt>
+            <dd>Shape outline data</dd>
+        </dl>
+        
+        More details on this element below. Path data includes shape "control point" positions and a variety of commands, see [TBD: another table].
+    </td></tr>
+    
+    <tr><td>g</td><td>
+        <dl>
+            <dt>transform</dt>
+            <dd>List of coordinate system transforms</dd>
+        </dl>
+        
+        Not a shape, but a <em>structural</em> element. More on this one below, too.
+    </td></tr>
+    
+</tbody>
+<caption>Summary of SVG elements and their unique attributes</caption>
+</table>
 
 <p>
-There are a few more elements and a lot more attributes than are listed here, but these are all we'll be using to get started showing data with SVG.
+There are a few more elements and a lot more attributes than are listed here, but these are what we'll be using to get started showing data with SVG. We'll also be using these major presentation attributes, which can be used with any of the shape elements above:
+
+<dl>
+    <dt>stroke, stroke-opacity</dt>
+    <dd>The CSS-style color and opacity (from 0.0 to 1.0) for the outline of a shape</dd>
+    
+    <dt>stroke-width</dt>
+    <dd>The thickness of the outline, in units of its current viewport</dd>
+    
+    <dt>fill, fill-opacity</dt>
+    <dd>The color and opacity for the <em>interior</em> area of a shape. Even if a shape isn't closed, it can be filled!</dd>
+</dl>
 
 <p>
 TBD: deeper look at paths
 
 <p>
-TBD: deeper look at groups
+TBD: deeper look at groups/transforms (incl.: all elements can be transformed)<br>
 
 
 <h3>Beyond D3.js’s DOM manipulation operators</h3>
