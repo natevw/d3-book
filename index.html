@@ -288,10 +288,10 @@ So then! We sprouted the core of D3 from seed [TBD: fix weird analogy] in the pr
 Let's take a look, finally, at a basic drawing of some simple data. We'll learn how to assemble some of the patterns — several of which we've already seen! — that are looking beneath every visualization, and start getting introduced to the full D3 toolbox. It took a lot to get here; but now we have a good solid root system we can tap into as we seek to blossom out.
 
 <p>
+Say I need a simple graph to show how nitrate concentration readings in a fish tank of mine have been changing. It should be easy to generate a sort of "sparkline" from a sampling of data we have in an array, e.g. <code>waterTests = [{"NO3":10}, {"NO3":10}, {"NO3":20}, {"NO3":15}, …]</code>.
 
-
-[TBD: Introduce, then explain "wrongness" of this nitrates sparkline example.]
-
+<p>
+[TBD: review general pattern, talk about implementation strategy]
 
 <svg style="padding:0; background: none; fill: forestgreen" width=250 height=50 preserveAspectRatio=none></svg>
 <script type="x-book/x-sample">
@@ -303,8 +303,17 @@ svg.selectAll('circle').data(waterTests)
         .attr('cy', function (d) { return -d.NO3; });
 </script>
 
+<p>
+We've done it!
 
-…
+<p>
+…but there's a lot <em>not</em> to love about how we did it. [TBD: explain downsides of viewBox hack, using ellipse instead of circle, having to plot negated nitrate values, how would we draw lines between the dots, etc.]
+
+<p>
+To do better than this, we need to go beyond D3's basic DOM manipulation operators. For starters, it'd be nice if we could easily fit the data to a more natural viewbox, instead of trying to fit the viewbox to our data. And if we're going to trace in a line to connect each of our data points, it'd sure be great if we didn't have to build the attribute strings ourselves.
+
+<p>
+Fortunately, D3 includes tools to make both of these more natural. To fit our data to the viewbox, we can transform it using a <i>scale</i>. Once we've done that, we can use a <i>shape generator</i> to yield path data without making a mess of our code.
 
 <h3>Using scales and generators</h3>
 …
