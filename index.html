@@ -290,17 +290,17 @@ Let's take a look, finally, at a basic drawing of some simple data. We'll learn 
 <p>
 
 
-[TBD: Nitrates sparkline example.]
+[TBD: Introduce, then explain "wrongness" of this nitrates sparkline example.]
 
 
-<svg style="padding:0; background: none" width=250 height=50 preserveAspectRatio=none></svg>
+<svg style="padding:0; background: none; fill: forestgreen" width=250 height=50 preserveAspectRatio=none></svg>
 <script type="x-book/x-sample">
-d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130").selectAll('circle').data(waterTests)
+var svg = d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130");
+svg.selectAll('circle').data(waterTests)
     .enter().append('ellipse')
-        .attr('rx', 0.5).attr('ry', 4).attr('fill', "forestgreen")
+        .attr('rx', 0.5).attr('ry', 4)
         .attr('cx', function (d,i) { return i; })
         .attr('cy', function (d) { return -d.NO3; });
-
 </script>
 
 
