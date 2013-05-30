@@ -290,23 +290,16 @@ Let's take a look, finally, at a basic drawing of some simple data. We'll learn 
 <p>
 
 
-[TBD: temperature sparkline example.]
+[TBD: Nitrates sparkline example.]
 
 
-<svg style="padding:0" width=500 height=15 preserveAspectRatio=none></svg>
+<svg style="padding:0; background: none" width=250 height=50 preserveAspectRatio=none></svg>
 <script type="x-book/x-sample">
-d3.select(this).attr('viewBox', "-0.5 -9 "+waterTests.length+" 2")
-    .append('line')
-        .attr('stroke', "grey").attr('stroke-width', 0.25)
-        .attr('x1', 0).attr('x2', waterTests.length)
-        .attr('y1', -8).attr('y2', -8);
-
-
-d3.select(this).selectAll('circle').data(waterTests)
-    .enter().append('circle')
-        .attr('r', 0.5).attr('fill', "blue")
+d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130").selectAll('circle').data(waterTests)
+    .enter().append('ellipse')
+        .attr('rx', 0.5).attr('ry', 4).attr('fill', "forestgreen")
         .attr('cx', function (d,i) { return i; })
-        .attr('cy', function (d) { return -d.pH; });
+        .attr('cy', function (d) { return -d.NO3; });
 
 </script>
 
