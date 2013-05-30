@@ -283,16 +283,33 @@ TBD: deeper look at groups/transforms (incl.: all elements can be transformed)<b
 <h3>Beyond D3.js’s DOM manipulation operators</h3>
 
 <p>
-So then! We sprouted the core of D3 from seed in the previous chapter, and now we've just survived (presumably…) our first look over the landscape of SVG. Now let's finally start combining all these basic elements into more significant structures.
+So then! We sprouted the core of D3 from seed [TBD: fix weird analogy] in the previous chapter, and now we've just survived (presumably…) our first look over the landscape of SVG. Now let's finally start combining all these basic elements into more significant structures.
 <p>
 Let's take a look, finally, at a basic drawing of some simple data. We'll learn how to assemble some of the patterns — several of which we've already seen! — that are looking beneath every visualization, and start getting introduced to the full D3 toolbox. It took a lot to get here; but now we have a good solid root system we can tap into as we seek to blossom out.
 
 <p>
+
+
 [TBD: temperature sparkline example.]
+
+
+<svg></svg>
+<script type="x-book/x-sample">
+function drawChart() {
+  var layout = d3.layout.pie().value(function (d) { return d.amount; }),
+      generator = d3.svg.arc().outerRadius(10),
+      scale = d3.scale.category10();
+  
+  d3.select(this).attr('viewBox',"-10 -10 20 20").datum(timeUse).selectAll('path').data(layout)
+    .enter().append('svg:path').attr('d', generator).attr('fill', function (d,i) { return scale(i); });  
+}
+drawChart.call(this);
+</script>
+
 
 …
 
-<h3>Using quantitative and ordinal scales</h3>
+<h3>Using scales and generators</h3>
 …
 
 <h3>Adding labels to basic charts</h3>
@@ -468,7 +485,7 @@ drawChart.call(this);
 window.setInterval(function () {
   randomizeData();
   drawChart.call(this);
-}.bind(this), 2500);
+}.bind(this), 250000);
 
 
 /* TBD: probably hide this stuff in printed listing */
@@ -669,6 +686,84 @@ DATA.timeUse = [
   {activity:"Playing fiddle", amount: 2},
   {activity:"Resting", amount:30}
 ];
+
+DATA.waterTests = [
+    {d:"2013-02-21", pH:8.2,NH3:0,NO2:0,NO3:10},
+    {d:"2013-02-23", pH:8.3,NH3:0.125,NO2:0,NO3:10},
+    {d:"2013-03-01", pH:8.1,NH3:0.125,NO2:0,NO3:10},
+    {d:"2013-03-04", pH:8.2,NH3:0.25,NO2:0,NO3:10},
+    3/5 8.2/0.25/0/10
+    3/6 8.1/0.5/0/10
+    3/7 8.0/0.25/0/10
+    3/8 8.2/0.5/0/20
+    3/9 8.1/0.5/0/15
+    3/9 8.0/0.5/0/15
+   3/10 8.0/0.25/0/20
+   3/11 8.1/0.5/0/10
+    {d:"2013-03-12", NH3:0.5, NO2:0.125/2},
+   3/12 8.2/0.5/0.0625/10
+   3/13 8.2/0.5/0.0625/30
+   3/14 8.1/0.25/0.125/40
+   3/15 8.2/0.5/0.25/30
+   3/16 8.2/0.5/0.25/40
+   3/17 8.2/0.5/0.25/40
+   3/18 8.2/0.5/0.5/30
+   3/19 8.2/0.5/0.5/35
+   3/20 8.3/0.5/0.5/80
+   3/21 8.3/0.5/0.75/80
+   3/22 8.3/0.25/1.5/60
+   3/23 8.3/0.25/2.0/40
+   3/24 8.4/0.125/5.0/40
+   3/25 8.3/0.125/5.0/60
+   3/26 8.3/0.0625/5.0/40
+   3/27 8.2/0.0625/3.5/60
+   3/28 8.2/0.0625/3.5/50
+   3/29 8.2/0.0625/3.5/40
+   3/30 8.2/0.0625/2/30
+   3/31 8.3/0/3.5/35
+    4/1 8.3/0.0625/3.5/30
+    4/2 8.3/0.0625/3.5/40
+    4/3 8.0/0/3.5/50
+    4/4 8.0/0.0625/3.5/30
+    4/5 8.0/0.0625/3.5/30
+    4/6 8.1/0.0625/3.5/30
+    4/8 8.2/0.0625/3.5/20
+    4/9 8.1/0.25/0.75/20
+   4/10 8.0/0/0/15
+   4/11 8.0/0.125/0/15
+   4/12 7.9/0.25/0/15
+   4/13 7.9/0.25/0/10
+   4/14 7.9/0.125/0/7.5
+    {d:"2013-04-15", pH:7.9, NO3:15},
+    {d:"2013-04-16", pH:8.1},
+    {d:"2013-04-17", pH:6.6},
+    {d:"2013-04-17", pH:7.6},
+   4/17 7.9/0/0/20
+   4/20 7.8/0.0625/0/15
+   4/21 7.6/0.75/1/20
+   4/22 7.6/0.5/3.5/60
+   4/23 7.6/0.25/3.5/60
+   4/24 7.6/0.125/3.5/60
+   4/25 7.6/0.0625/0/60
+   4/26 7.6/0.0625/0/60
+   4/27 7.6/0.75/0.125/80
+   4/28 7.6/0.35/3.5/80
+   4/29 7.6/0.0625/3.5/80
+   4/30 7.7/0.125/0/100
+    5/5 7.6/0/0/120
+   5/13 7.6/0/0/100
+   5/20 7.8/0/0/60
+   5/29 7.6/0.25/0/5
+];
+
+var vals = s.split('\n').map(function (s) { return s.trim(); }).map(function (s) {
+    if (s[0] === '{') return eval("o="+s.replace('},', '}'));
+    s = s.split(' ');
+    var d = "2013-" + s[0].split('/').map(function (n) { n = +n; return (n > 9) ? n : '0'+n; }).join('-'),
+        c = s[1].split('/').map(Number);
+    return {d:d,pH:c[0],NH3:c[1],NO2:c[2],NO3:c[3]};
+});
+JSON.stringify(vals).replace(/"(\w+)":/g, "$1:").replace(/},/g, "},\n").replace(/,(\w)/g, ", $1");
 
 </script>
 <script>
