@@ -338,18 +338,21 @@ Let's start with what might be one of the simplest quantitative scales, <code>d3
 <p>
 Let's see this in action:
 
-<svg style="padding:0; background: none; fill: forestgreen" width=250 height=50 preserveAspectRatio=none></svg>
+<svg style="padding:0; background: none; fill: forestgreen" width=250 height=50></svg>
 <script type="x-book/x-sample">
-var svg = d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130");
-svg.selectAll('ellipse').data(waterTests)
-    .enter().append('ellipse')
-        .attr('rx', 0.5).attr('ry', 4)
-        .attr('cx', function (d,i) { return i; })
-        .attr('cy', function (d) { return -d.NO3; });
+var xScale = d3.scale.linear().domain([0, waterTests.length]).range([0, this.getAttribute('width')]),
+    yScale = d3.scale.linear().domain([0, d3.max(waterTests, function (d) { return d.NO3; })]).range([this.getAttribute('height'), 0]);
+console.log(this, this.width, this.height);
+
+d3.select(this).selectAll('circle').data(waterTests)
+    .enter().append('circle').attr('r', 2)
+        .attr('cx', function (d,i) { return xScale(i); })
+        .attr('cy', function (d) { return yScale(d.NO3); });
 </script>
 
 <p>
-[TBD: convert script above to use scales, discuss domain/range methods in more detail and note use of d3.max]
+Now instead of having to set up the <code>svg</code> image view box first, we set up our scales instead. 
+[TBD: discuss domain/range methods in more detail, note use of d3.max, note flipped yScale range, different handling of undefined]
 
 
 <h3>Adding labels to basic charts</h3>
