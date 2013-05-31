@@ -288,15 +288,18 @@ So then! We sprouted the core of D3 from seed [TBD: fix weird analogy] in the pr
 Let's take a look, finally, at a basic drawing of some simple data. We'll learn how to assemble some of the patterns — several of which we've already seen! — that are looking beneath every visualization, and start getting introduced to the full D3 toolbox. It took a lot to get here; but now we have a good solid root system we can tap into as we seek to blossom out.
 
 <p>
-Say I need a simple graph to show how nitrate concentration readings in a fish tank of mine have been changing. It should be easy to generate a sort of "sparkline" from a sampling of data we have in an array, e.g. <code>waterTests = [{"NO3":10}, {"NO3":10}, {"NO3":20}, {"NO3":15}, …]</code>.
+Say I need a simple graph to show the change in nitrate (NO<sub>3</sub><sup>−</sup>) readings taken from a fish tank of mine over a few months. (Nitrates are unwanted in drinking water, but it's a relatively safe form of nitrogen for fish and a great fertilizer for plants — in our case slightly elevated levels are great!) To get a feel for the general trends, it should be easy to generate a sort of "sparkline" from a sampling of data we have in an array, e.g. <code>waterTests = [{"NO3":10}, {"NO3":10}, {"NO3":20}, {"NO3":15}, …]</code>.
 
 <p>
-[TBD: review general pattern, talk about implementation strategy]
+A real sparkline would be a word-sized line graph, but we'll draw it below using dots, and in enlarged form, for simplicity and clarity right now. Our real focus is on the underlying pattern. For each data point we want a dot, that is, an SVG <code>circle</code> whose center corresponds in the horizontal (x) axis to it order in the data set and in the vertical (y) axis to the value of each data point's NO3 property. The radius and other visual properties of the dots are not derived from the data, they are just suitable constants.
+
+<p>
+That's really all there is to it, and so we mostly need to bind our data to a selection within our SVG element, append our dot elements, and then apply each datum's index to the <code>cx</code> attribute, and each datum's <code>.NO3</code> property to the <code>cy</code> attribute of these dots. To keep it just about that simple, we'll first set up the image's view box so the raw index and nitrate values land in the right visual range:
 
 <svg style="padding:0; background: none; fill: forestgreen" width=250 height=50 preserveAspectRatio=none></svg>
 <script type="x-book/x-sample">
 var svg = d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130");
-svg.selectAll('circle').data(waterTests)
+svg.selectAll('ellipse').data(waterTests)
     .enter().append('ellipse')
         .attr('rx', 0.5).attr('ry', 4)
         .attr('cx', function (d,i) { return i; })
@@ -307,16 +310,47 @@ svg.selectAll('circle').data(waterTests)
 We've done it!
 
 <p>
-…but there's a lot <em>not</em> to love about how we did it. [TBD: explain downsides of viewBox hack, using ellipse instead of circle, having to plot negated nitrate values, how would we draw lines between the dots, etc.]
+…but there's a lot <em>not</em> to love about how we did it. It's simple yes, but for starters: what happened to our <code>circle</code> element? Instead we've had to draw a really wide ellipse that gets squished back roughly into shape again by our stretched view box. We also had to root our view box in a negative range, and flip all our nitrate values as we drew them, so that higher values would show up higher in the page. (Remember that SVG's coordinate system is like that of many other image systems: its orgin is in the <em>top</em>-left instead of the <em>bottom</em>-left most charts use. And we can't use a negative viewbox height to flip it either — that value must be a positive number, restricting it to a simple stretchable crop box.)
 
 <p>
-To do better than this, we need to go beyond D3's basic DOM manipulation operators. For starters, it'd be nice if we could easily fit the data to a more natural viewbox, instead of trying to fit the viewbox to our data. And if we're going to trace in a line to connect each of our data points, it'd sure be great if we didn't have to build the attribute strings ourselves.
+This is already less than ideal, and we started with only a very simple drawing goal. Now, we've mentioned early that in addition to the image view box, SVG allows a <i>transform</i> to be set on any element. A transform would let us flip the coordinate system — eliminating the need to negate our <code>cy</code> values — but it wouldn't help our "circle squishing" problems. What really need sometimes is to convert our data <em>before</em> we apply it to our drawing elements. As we'll soon find, getting into this habit of transforming data as we apply it to our DOM makes things like drawing lines much much easier too.
 
 <p>
-Fortunately, D3 includes tools to make both of these more natural. To fit our data to the viewbox, we can transform it using a <i>scale</i>. Once we've done that, we can use a <i>shape generator</i> to yield path data without making a mess of our code.
+But to do this without littering our data operator code with inscrutable equations like "<code>return 65 - 0.5 * d.N03</code>", we need to go beyond D3's basic DOM manipulation operators. For starters, it'd be nice if we could easily fit the data to a more natural (and more square!) view box, instead of trying to warp the view box to our data. And if we're going to trace in a line to connect each of our data points, it'd sure be great if we didn't have to build the attribute strings ourselves.
+
+<p>
+Fortunately, D3 includes tools to make both of these more natural. To fit our data to the view box, we can transform it using a <i>scale</i> from within our attribute operator. Once we've done that, we can even start using <i>shape generators</i> to yield path data on our behalf.
 
 <h3>Using scales and generators</h3>
-…
+
+<p>
+What is a scale?
+
+<p>
+Well, a scale <em>transforms</em> numbers — meaning it can takes a value in and outputs a different, converted value. In this sense it's really just a pure function, and indeed in D3 scale "instances" end up being just JavaScript functions.
+
+<p>
+D3 includes a handful of scales, in a couple different categories. Most of them take a number (or something easily converted to a number, such as a date converted to the number of seconds since the epoch) as input and output a proportional number in its place. These are called "quantitative" scales, and one of these is what we will soon use for our nitrate graph. The other, called the "ordinal" scale, can be useful for applying pre-set styles to both ordinal (i.e. values which can be ordered but no relative distances measured between them) and nominal (values which represent names or qualities) data; this data is usually non-numeric. A few of D3's quantitative scales can yield non-numeric output as well.
+
+<p>
+Let's start with what might be one of the simplest quantitative scales, <code>d3.scale.linear()</code> and apply it to our sparkline. We said that a scale is just a JavaScript function. This is true; when we call <code>d3.scale.linear()</code> we get a function back that will happily take in one value and return another. However, functions in JavaScript are also objects as well and can have properties (and therefore methods) of their own. D3 takes advantage of this to give us more readable control over the scale; instead of taking in all the parameters we're about to explore as nameless arguments on initialization, we can use setter methods on our scale function "instance" to configure it.
+
+<p>
+Let's see this in action:
+
+<svg style="padding:0; background: none; fill: forestgreen" width=250 height=50 preserveAspectRatio=none></svg>
+<script type="x-book/x-sample">
+var svg = d3.select(this).attr('viewBox', "-0.5 -125 "+waterTests.length+" 130");
+svg.selectAll('ellipse').data(waterTests)
+    .enter().append('ellipse')
+        .attr('rx', 0.5).attr('ry', 4)
+        .attr('cx', function (d,i) { return i; })
+        .attr('cy', function (d) { return -d.NO3; });
+</script>
+
+<p>
+[TBD: convert script above to use scales, discuss domain/range methods in more detail and note use of d3.max]
+
 
 <h3>Adding labels to basic charts</h3>
 …
