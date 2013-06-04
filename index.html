@@ -119,12 +119,22 @@ Instead this book is about:
 <i>"Smoking is one of the leading causes of statistics."</i> <!-- http://en.wikipedia.org/w/index.php?title=Fletcher_Knebel&oldid=555451790 via: Fletcher Knebel, who keenly observed as far back as 1961 that "smoking is the leading cause of statistics" - http://www.salon.com/people/feature/2000/02/09/sevenvices/ -->
 
 <p>
+[TBD: chapter outline]
+
+<p>
 We've seen that D3 makes it easy to manipulate elements within document's object model to make them match data input, and we've said that D3's core patterns are applicable to a wide range of uses. It's time to prove it.
+
+<p>
+It's also time to tackle what D3 is most famous for: graphs and charts!
+
+<p>
+[TBD: more intro — justification for why we're seeing this (move up "graphs and charts!" announcement and follow it with more pictures, etc.]
 
 <h3>Manipulating SVG’s DOM</h3>
 
 <p>
-It's also time to tackle what D3 is most famous for: graphs and charts!
+[TBD: add in comparison between using D3 HTML vs SVG's DOM to this section]
+
 
 <p>
 We've been focusing on manipulating HTML's DOM. This DOM exposes the visible document as a tree of elements, each with its own meaning and each accepting attributes which we can use to modify how they are presented. Our options for presentation and styling these HTML elements leave a little to be desired, especially when it comes to drawing graphics content.
@@ -141,6 +151,7 @@ Manipulating SVG will be just like manipulating HTML: we'll use D3 to generate a
 <h3>Overview of available SVG elements</h3>
 
 <p>
+[TBD: get rid of "assumed" sentence, make less meta]
 We've assumed you were already a bit familiar with HTML and CSS, and really didn't worry to much about the details as we learned the basic D3 concepts. We'll have to be a little more careful when it comes to SVG. While D3 will again make things look fairly high level, in order to see the patterns and picture what custom logic will be required, we need to have a pretty good idea what is really going on at the SVG level.
 
 <p>
@@ -280,7 +291,8 @@ TBD: deeper look at paths
 TBD: deeper look at groups/transforms (incl.: all elements can be transformed)<br>
 
 
-<h3>Beyond D3.js’s DOM manipulation operators</h3>
+<h3>Beyond D3.js’s DOM manipulation operators</h3> [TBD: rename to e.g. "Building a chart with what we know"]
+
 
 <p>
 So then! We sprouted the core of D3 from seed [TBD: fix weird analogy] in the previous chapter, and now we've just survived (presumably…) our first look over the landscape of SVG. Now let's finally start combining all these basic elements into more significant structures.
@@ -310,7 +322,7 @@ svg.selectAll('ellipse').data(waterTests)
 We've done it!
 
 <p>
-…but there's a lot <em>not</em> to love about how we did it. It's simple yes, but for starters: what happened to our <code>circle</code> element? Instead we've had to draw a really wide ellipse that gets squished back roughly into shape again by our stretched view box. We also had to root our view box in a negative range, and flip all our nitrate values as we drew them, so that higher values would show up higher in the page. (Remember that SVG's coordinate system is like that of many other image systems: its orgin is in the <em>top</em>-left instead of the <em>bottom</em>-left most charts use. And we can't use a negative viewbox height to flip it either — that value must be a positive number, restricting it to a simple stretchable crop box.)
+…but there's a lot <em>not</em> to love about how we did it. It's simple, yes, but for starters: what happened to our <code>circle</code> element? Instead we've had to draw a really tall ellipse that gets squished back roughly into shape again by our stretched view box. We also had to root our view box in a negative range, and flip all our nitrate values as we drew them, so that higher values would show up higher in the page. (Remember that SVG's coordinate system is like that of many other image systems: its orgin is in the <em>top</em>-left instead of the <em>bottom</em>-left most charts use. And we can't use a negative viewbox height to flip it either — that value must be a positive number, restricting it to a simple stretchable crop box.)
 
 <p>
 This is already less than ideal, and we started with only a very simple drawing goal. Now, we've mentioned early that in addition to the image view box, SVG allows a <i>transform</i> to be set on any element. A transform would let us flip the coordinate system — eliminating the need to negate our <code>cy</code> values — but it wouldn't help our "circle squishing" problems. What really need sometimes is to convert our data <em>before</em> we apply it to our drawing elements. As we'll soon find, getting into this habit of transforming data as we apply it to our DOM makes things like drawing lines much much easier too.
