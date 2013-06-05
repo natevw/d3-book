@@ -146,33 +146,34 @@ Surprisingly, statistical graphics are barely older than a few centuries. Like o
 Showing data as pictures engages the human <em>visual</em> system's power for more abstract purposes. Instead of using the eye as a sort of statistics siphon, just  blindly pumping facts between the page where they've been remembered and the brain where they can be pondered, a graph engages the eye itself in <em>analyzing</em> the data it represents.
 
 <p>
-We're only going to scratch the surface of visual representation techniques, but we're going to be "reverse analyzing" the charts we do cover. We're not going to worry too much about what particular chart types are <em>meant</em> to show. We're going to look at where the data <em>went</em> and the way it was shown there. This will enable us to use D3.js at its natural level: …
+To draw charts using D3, we start by building off what we already know. There are many ways of showing data visually; the examples provided here are meant to show the "how" and not necessarily the "why". You may think of better ways to show data, and that's great! Hopefully by seeing how some more basic, perhaps even unglamorous (or worse — unsophisticated!) graphs and charts are assembled from both fundamental and more specialized components, you'll be able to apply those patterns in more novel (and certainly more polished) ways.
 
-[TBD: more intro — justification for why we're seeing this (and pictures, etc.)]
+<p>
+Essentially all the tools available to a graphics illustrator <em>and</em> nearly any algorithm available in sophisticated data analysis packages are within reach, for use togehter, when using D3. Its unique design allows full control over the recipe for a given chart, letting you combine whatever ingredients are necessary for your particular visualization. Covering all the drawing features available within browsers and all the statistical and computational geometry algorithms that have been ported to JavaScript is beyond the scope of this book, but rest assured that D3 itself uses enough of both to whet our appetites for what's possible. We'll start with the drawing features and then start adding in some of the algorithms that come bundled with D3.
 
 <h3>Manipulating SVG’s DOM</h3>
 
 <p>
-[TBD: add in comparison between using D3 HTML vs SVG's DOM to this section]
-
-
-<p>
-We've been focusing on manipulating HTML's DOM. This DOM exposes the visible document as a tree of elements, each with its own meaning and each accepting attributes which we can use to modify how they are presented. Our options for presentation and styling these HTML elements leave a little to be desired, especially when it comes to drawing graphics content.
+We've been focusing on manipulating HTML's DOM. This DOM exposes the visible document as a tree of elements of varying types, each with its own meaning and each accepting attributes which we can use to modify how they are presented. Our options for presentation and styling these HTML elements leave a little to be desired, especially when it comes to drawing graphics content.
 
 <p>
-Fortunately, modern browsers expose another standardized DOM — one tailored specifically to display vector graphics! SVG is a [TBD: summary and brief history of standard].
+Fortunately, modern browsers expose another standardized DOM — one tailored specifically to the display of vector graphics! SVG, which stands for "Scalable Vector Graphics", is an XML image format (dating back to when XML was still young) for which browsers gradually added support — first via foreign <code>object</code> tags, then within standard <code>img</code> tags and finally embedded directly in HTML5 via the <code>svg</code> tag. It's this last milestone that is useful to us.
+
+
+<div></div>
+<script type="x-book/x-sample">
+var html = d3.select(this).append('span').text("Text displayed using HTML.");
+
+var svg = d3.select(this).append('svg').attr('width', 200).attr('height', 40);
+svg.append('defs').append('path').attr('id', "squiggle").attr('d', squiggle);
+svg.append('text').append('textPath').attr('xlink:href', "#squiggle")
+    .text("More control via SVG!");
+</script>
 
 <p>
-[a nice vector graphic, annotated]
-
-<p>
-Manipulating SVG will be just like manipulating HTML: we'll use D3 to generate a selection of elements and then set attributes on these elements, making each display whatever information in whatever way we desire. To do this effectively we will finally begin our venture outside of D3's core selection API, and begin borrowing from its fantastic toolchest full of useful utilities.
+Manipulating SVG tags directly embedded in HTML is hardly any different than manipulating HTML itself: we use D3 to generate a selection of elements and then set attributes on these elements, using each element to display whatever information in whichever way we desire. To do this effectively we must first complete our tour of basic SVG usage. Soon, finally, we will be ready to venture outside of D3's core selection API, and begin borrowing from its fantastic toolchest full of useful utilities.
 
 <h3>Overview of available SVG elements</h3>
-
-<p>
-[TBD: get rid of "assumed" sentence, make less meta]
-We've assumed you were already a bit familiar with HTML and CSS, and really didn't worry to much about the details as we learned the basic D3 concepts. We'll have to be a little more careful when it comes to SVG. While D3 will again make things look fairly high level, in order to see the patterns and picture what custom logic will be required, we need to have a pretty good idea what is really going on at the SVG level.
 
 <p>
 If you're already familar with vector graphics, either from other drawing frameworks or even from sketching shapes in an illustration app, great! SVG follows a pretty standard vector drawing model, built on the notion of shapes drawn relative to an invisible, adjustable grid of layers, over top any "earlier" shapes drawn below. In SVG, these vector shapes are called <i>paths</i>, and the layered grids in which the virtual brush moves are called <i>viewports</i>.
@@ -305,7 +306,7 @@ There are a few more elements and a lot more attributes than are listed here, bu
 </dl>
 
 <p>
-TBD: deeper look at paths
+TBD: deeper look at paths (and basic shape equivalencies)
 
 <p>
 TBD: deeper look at groups/transforms (incl.: all elements can be transformed)<br>
@@ -753,6 +754,8 @@ TBD: make sure readers are aware of CSS3 transitions and SVG animation, which ar
 <script>
 
 DATA = {};
+
+DATA.squiggle = "M 13.975904,33.253012 C 33.413655,7.2289157 42.409639,8.8353413 42.409639,8.8353413 58.634538,5.4618474 53.012048,28.11245 70.040161,35.02008 90.923695,44.337349 131.72691,7.3895582 131.72691,7.3895582 156.30522,-1.4457832 182.6506,35.180723 182.6506,35.180723";
 
 DATA.timeUse = [
   {activity:"Field work", amount:50},
