@@ -182,7 +182,7 @@ If you're already familar with vector graphics, either from other drawing framew
 [TBD: path "shapes" + viewport "layers" graphic?]
 
 <p>
-Paths can be filled and/or simply left as stroked lines or outlines, and of course things like the colors used and the stroke and fills styles applied are all adjustable. SVG supports transparent colors, as well as even more advanced ways of combining (or "blending") colors with the content below. A more detailed explanation is beyond the scope of this chapter [TBD: appendix?] but here is a summary of how the elements and attributes of SVG determine what will be drawn in the document:
+Paths can be filled and/or simply left as stroked lines or outlines, and of course things like the colors used and the stroke and fills styles applied are all adjustable. SVG supports transparent colors, as well as even more advanced ways of combining (or "blending") colors with the content below. A more detailed explanation is beyond the scope of this chapter [TBD: appendix? <i>actually I'm wondering if most of <em>this</em> content <em>already belongs</em> to such an appendix!</i>] but here is a summary of how the elements and attributes of SVG determine what will be drawn in the document:
 
 <table border>
 <thead>
@@ -263,10 +263,12 @@ Paths can be filled and/or simply left as stroked lines or outlines, and of cour
         <dl>
             <dt>x</dt><dt>y</dt>
             <dd>Position of this element's content</dd>
+            <dt>font</dt>
+            <dd>Typeface options</dd>
         </dl>
         
         Character data inside a <code>text</code> element will be rendered on the image.<br>
-        NOTE: although we won't use much of it, this element is not nearly so simple as presented here. SVG offers rich text features such as spans and links and even allows a curved text baseline given an arbitrary path.
+        NOTE: although we won't use much of it, this element is not nearly so simple as presented here. Through this and other related elements, SVG offers rich text features such as links, individually stylable spans, and even rendering characters along a curved baseline controlled by an arbitrary path.
     </td></tr>
     
     <tr><td>path</td><td>
@@ -303,25 +305,82 @@ There are a few more elements and a lot more attributes than are listed here, bu
     
     <dt>fill, fill-opacity</dt>
     <dd>The color and opacity for the <em>interior</em> area of a shape. Even if a shape isn't closed, it can be filled!</dd>
+    
+    <dt>transform</dt>
+    <dd>Used to define a new coordinate space for this element and its children. (See later elaboration.)</dd>
 </dl>
 
 <p>
-TBD: deeper look at paths (and basic shape equivalencies)
+(Of special note is that many of these presentation attributes are defined as <i>styling properties</i> too! This means that visual aspects can be controlled through attributes on each element, <em>and</em> applied as rules by CSS selectors just like would be used with HTML. That is, one could request orange outlines for all SVG circles which have a "warning" class set by including <code>circle.warning { stroke: orange; }</code> in one of the containing document's CSS stylesheets!)
 
 <p>
-TBD: deeper look at groups/transforms (incl.: all elements can be transformed)<br>
+An SVG <code>path</code> is its most powerful primitive. In fact, except for images and (it could be argued) text, all of these other shapes can be represented as path data instead.
+
+<p>
+What is a path? Well, a path's data is a series of instructions controlling a virtual pen. This pen can be picked up and moved, directed to move straight to another location, and/or told to follow a variety of curved traces. When a series of lines or curves ends right where it started, it is considered a <i>closed</i> path, and depending on either its direction of travel (<code>fill-rule=nonzero</code> winding) or the number of closed paths surrounding it (<code>fill-rule=evenodd</code>), a closed subpath can represent a filled area or an unfilled <em>hole</em> in another shape.
+
+<p>
+Here are some example path data strings with brief interpretations. D3 will normally generate these strings for us, so just a basic understanding will suffice. The basic rules are:
+
+<ul>
+<li>Each letter represents a command, and is typically followed by a series of numbers (whitespace and/or commas can be used to separate them) which represent point coordinates or other parameters.
+<li>Uppercase commands are absolute (i.e. coordinates are interpreted relative to the coordinate system); lowercase commands are relative (i.e. coordinates are treated as vectors from the current position).
+<li>Repeated commands are implied whenever numeric data is given without a preceding letter.
+</ul>
+
+The letters and numbers within a path's "<code>d</code>" attribute only control the <em>outline</em> of the path. They determine <em>what</em> shape will be drawn. Other attributes (<code>color</code>, <code>fill-rule</code>, <code>stroke-width</code>, <code>opacity</code>, etc.) or corresponding CSS styling properties must still be used to control other aspects of <em>how</em> the shape is rendered.
+
+<table border>
+<thead>
+    <tr><th style="width: 10em"><code>&lt;path d="…"/></th><th>Prose</th><th>Picture</th></tr>
+</thead>
+<tbody>
+    <tr><th>M 10,25<br>L 90,75</th><td>
+        Move to (i.e. start at) top left. Draw a line towards the bottom left.<br>
+        This is equivalent to <code>&lt;line x1=10 y1=25 x2=90 y2=75/></code>.
+    </td><td>
+        <svg width=100 height=100><path d="M 10,25 L 90,75" fill=none stroke=black /></svg>
+    </td></tr>
+    
+    <tr><th>M 10,25<br>l 0,50<br>l 80,0<br>l 0,-50<br>Z</th><td>
+        Move to top left. Draw a line downwards. Draw a line to the right. Draw a line upwards. Close the path (i.e. draw a straight line to start).<br>
+        This is equivalent to <code>&lt;rect x=10 y=25 w=80 h=50/></code>.
+    </td><td>
+        <svg width=100 height=100><path d="M 10,25 l 0,50 l 80,0 l 0,-50 Z" fill=none stroke=black /></svg>
+    </td></tr>
+    
+    <tr><th>M 50,50<br>m -45,0<br>a 45,35 0 1,1 90,0<br>&nbsp; 45,35 0 1,1 -90,0</th><td>
+        Start in the middle, then move towards the left edge from there. Take a wide, unroated ellipse and fit a major, clockwise arc from it between the current point and a point way over to the right; then an arc from the same size ellipse, but end way over to the left.<br>
+        This is equivalent to <code>&lt;ellipse x=50 y=50 rx=45 ry=35/></code>.
+    </td><td>
+        <svg width=100 height=100><path d="M 50,50 m -45,0 a 45,35 0 1,1 90,0 45,35 0 1,1 -90,0" fill=none stroke=black /></svg>
+    </td></tr>
+    
+    <tr><th>M 50,50<br>l -45,-45<br>l 0,90<br>L 50,50<br>l 45,-45<br>l 0,90<br>Z<br>m 0,-25<br>t -10,25<br>&nbsp; 10,25<br>&nbsp; 10,-25<br>&nbsp; -10,-25</th><td>
+        Start in the middle. Draw a line towards the top left. Line straight down. Line to the middle. Line towards the top right. Line straight down. Close this subpath. Start the next subpath a little closer the top. Draw a curve down leftwards, then down rightwards, then up rightwards, then up leftwards. (An upset fish?)<br>
+        Note: this is filled <code>evenodd</code>, i.e. every other region is left "outside" the shape.
+    </td><td>
+        <svg width=100 height=100><path d="M 50,50 l -45,-45 l 0,90 L 50,50 l 45,-45 l 0,90 Z m 0,-25 t -10,25 10,25 10,-25 -10,-25" fill-rule=evenodd fill=grey stroke=black /></svg>
+    </td></tr>
+    
+</tbody>
+<caption>Path data examples, including some basic shapes</caption>
+</table>
+
+<p>
+TBD: explain groups/transforms (incl.: elaborate on how "all elements can be transformed")<br>
 
 
-<h3>Beyond D3.js’s DOM manipulation operators</h3> [TBD: rename to e.g. "Building a chart with what we know"]
+<h3>Applying D3.js’s DOM manipulation operators to SVG</h3>
 
 
 <p>
-So then! We sprouted the core of D3 from seed [TBD: fix weird analogy] in the previous chapter, and now we've just survived (presumably…) our first look over the landscape of SVG. Now let's finally start combining all these basic elements into more significant structures.
+So then! We took the kernel of D3 and watched it sprout in the previous chapter, and we've just survived (presumably…) our first look over the landscape of SVG. Now let's finally start combining all these basic elements into more significant structures.
 <p>
-Let's take a look, finally, at a basic drawing of some simple data. We'll learn how to assemble some of the patterns — several of which we've already seen! — that are looking beneath every visualization, and start getting introduced to the full D3 toolbox. It took a lot to get here; but now we have a good solid root system we can tap into as we seek to blossom out.
+So let's take a look, finally, at basic drawing of some simple data. We'll learn how to assemble some of the patterns — several of which we've already seen! — that are looking beneath every visualization, and start getting introduced to the full D3 toolbox. It took a lot to get here; but now we have a good solid root system we can tap into as we seek to blossom out.
 
 <p>
-Say I need a simple graph to show the change in nitrate (NO<sub>3</sub><sup>−</sup>) readings taken from a fish tank of mine over a few months. (Nitrates are unwanted in drinking water, but it's a relatively safe form of nitrogen for fish and a great fertilizer for plants — in our case slightly elevated levels are great!) To get a feel for the general trends, it should be easy to generate a sort of "sparkline" from a sampling of data we have in an array, e.g. <code>waterTests = [{"NO3":10}, {"NO3":10}, {"NO3":20}, {"NO3":15}, …]</code>.
+Say I need a simple graph to show the change in nitrate (NO<sub>3</sub><sup>−</sup>) readings taken from a fish tank of mine over a few months. (Nitrates are unwanted in drinking water, but it's a relatively safe form of nitrogen for fish and a great fertilizer for plants — so in our case moderately elevated levels are great!) To get a feel for the general trends, it should be easy to generate a sort of "sparkline" from a sampling of data we have in an array, e.g. <code>waterTests = [{"NO3":10}, {"NO3":10}, {"NO3":20}, {"NO3":15}, …]</code>.
 
 <p>
 A real sparkline would be a word-sized line graph, but we'll draw it below using dots, and in enlarged form, for simplicity and clarity right now. Our real focus is on the underlying pattern. For each data point we want a dot, that is, an SVG <code>circle</code> whose center corresponds in the horizontal (x) axis to it order in the data set and in the vertical (y) axis to the value of each data point's NO3 property. The radius and other visual properties of the dots are not derived from the data, they are just suitable constants.
@@ -352,7 +411,7 @@ This is already less than ideal, and we started with only a very simple drawing 
 But to do this without littering our data operator code with inscrutable equations like "<code>return 65 - 0.5 * d.N03</code>", we need to go beyond D3's basic DOM manipulation operators. For starters, it'd be nice if we could easily fit the data to a more natural (and more square!) view box, instead of trying to warp the view box to our data. And if we're going to trace in a line to connect each of our data points, it'd sure be great if we didn't have to build the attribute strings ourselves.
 
 <p>
-Fortunately, D3 includes tools to make both of these more natural. To fit our data to the view box, we can transform it using a <i>scale</i> from within our attribute operator. Once we've done that, we can even start using <i>shape generators</i> to yield path data on our behalf.
+Fortunately, D3 includes tools to make both of these more natural. To fit our data to the view box, we can transform it using a <i>scale</i> right within our attribute operator. Once we've done that, we can even start using <i>shape generators</i> to yield path data on our behalf.
 
 <h3>Using scales and generators</h3>
 
@@ -360,7 +419,7 @@ Fortunately, D3 includes tools to make both of these more natural. To fit our da
 What is a scale?
 
 <p>
-Well, a scale <em>transforms</em> numbers — meaning it can takes a value in and outputs a different, converted value. In this sense it's really just a pure function, and indeed in D3 scale "instances" end up being just JavaScript functions.
+Well, in D3.js a scale <em>transforms</em> numbers — meaning it can takes a value in and outputs a different, converted value. In this sense it's really just a pure function, and indeed D3's scale "instances" end up being just JavaScript functions.
 
 <p>
 D3 includes a handful of scales, in a couple different categories. Most of them take a number (or something easily converted to a number, such as a date converted to the number of seconds since the epoch) as input and output a proportional number in its place. These are called "quantitative" scales, and one of these is what we will soon use for our nitrate graph. The other, called the "ordinal" scale, can be useful for applying pre-set styles to both ordinal (i.e. values which can be ordered but no relative distances measured between them) and nominal (values which represent names or qualities) data; this data is usually non-numeric. A few of D3's quantitative scales can yield non-numeric output as well.
