@@ -469,20 +469,21 @@ Let's see this in action:
 
 <svg style="padding:0; background: none; fill: forestgreen" width=250 height=50></svg>
 <script type="x-book/x-sample">
-var xScale = d3.scale.linear().domain([0, waterTests.length]).range([0, this.getAttribute('width')]),
-    yScale = d3.scale.linear().domain([0, d3.max(waterTests, function (d) { return d.NO3; })]).range([this.getAttribute('height'), 0]);
-console.log(this, this.width, this.height);
+var yScale = d3.scale.linear().domain([0, d3.max(waterTests, function (d) { return d.NO3; })]).range([this.getAttribute('height'), 0]),
+    xScale = d3.scale.linear().domain(d3.extent(waterTests, function (d) { return d.t; })).range([0, this.getAttribute('width')]);
 
 d3.select(this).selectAll('circle').data(waterTests)
     .enter().append('circle').attr('r', 2)
-        .attr('cx', function (d,i) { return xScale(i); })
+        .attr('cx', function (d) { return xScale(d.t); })
         .attr('cy', function (d) { return yScale(d.NO3); });
 </script>
 
 <p>
 Now instead of having to set up the <code>svg</code> image view box first, we set up our scales instead.
 <hr style="border-color: red">
-[TBD: discuss domain/range methods in more detail, note use of d3.max, note flipped yScale range, different handling of undefined]
+
+[TBD: discuss domain/range methods in more detail, note use of d3.max and d3.extent, note flipped yScale range, different handling of undefined]
+Our data actually includes time values (samples were not always taken at the same rate) and so we show this now too.
 
 
 <h3>Adding labels to basic charts</h3>
@@ -944,6 +945,8 @@ DATA.waterTests = [
     {d:"2013-05-20", pH:7.8, NH3:0, NO2:0, NO3:60},
     {d:"2013-05-29", pH:7.6, NH3:0.25, NO2:0, NO3:5}
 ];
+DATA.waterTests.forEach(function (d) { d.t = new Date(d.d); });
+
 
 </script>
 <script>
