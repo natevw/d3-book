@@ -140,16 +140,38 @@ It's also time to tackle what D3 is most famous for: graphs and charts!
 Surprisingly, statistical graphics are barely older than a few centuries. Like our recent decade's acceptance of using a computer's Graphics Processing Unit for calculations that have little to do with displaying shaded surfaces on a monitor, pictures and diagrams (which had long been used to communicate more obviously "graphical" information like mugshots and maps and math) suddenly became an option for <em>general purpose</em> information presentation.
 
 <p>
-[TBD: table vs graph demo(s)]
+Can you tell what the two number series below represent? What's the difference between them?
+
+<table style="font-size: xx-small">
+<thead><tr><th>Left</th><th>Right</th></tr></thead>
+<tbody></tbody>
+</table>
+<script type="x-book/x-sample" data-hidden>
+d3.select(this).select('tbody').selectAll('tr').data(waves)
+    .enter().append('tr').selectAll('td').data(function (d) { return [d.sin, d.tri]; })
+        .enter().append('td').text(function (d) { return d.toFixed(3); });
+</script>
 
 <p>
-Showing data as pictures engages the human <em>visual</em> system's power for more abstract purposes. Instead of using the eye as a sort of statistics siphon, just  blindly pumping facts between the page where they've been remembered and the brain where they can be pondered, a graph engages the eye itself in <em>analyzing</em> the data it represents.
+It could be easier! Let's take the exact same data, but instead of writing out the figures, we'll plot the numbers in a graph. The numbers in the left hand column are drawn using a dashed line below. They represent a sine wave. The solid line is from the right hand column, a triangle wave. See?
+
+<svg width=200 height=100></svg>
+<script type="x-book/x-sample" data-hidden>
+var w = +d3.select(this).attr('width'), h = +d3.select(this).attr('height'),
+    line = d3.svg.line().x(function (d, i) { return w*i/waves.length; }).y(function (d) { return h*(1-d)/2; });
+d3.select(this).selectAll('path').data(['sin', 'tri'])
+    .enter().append('path').style({'fill':"none", 'stroke':"black", 'stroke-width':1, 'stroke-dasharray': function (k,i) { return (i) ? 'none' : "1 2"; }})
+        .datum(function (k) { return waves.map(function (d) { return d[k]; }); }).attr('d', line);
+</script>
 
 <p>
-To draw charts using D3, we start by building off what we already know. There are many ways of showing data visually; the examples provided here are meant to show the "how" and not necessarily the "why". You may think of better ways to show data, and that's great! Hopefully by seeing how some more basic, perhaps even unglamorous (or worse — unsophisticated!) graphs and charts are assembled from both fundamental and more specialized components, you'll be able to apply those patterns in more novel (and certainly more polished) ways.
+Showing data as pictures engages the human <em>visual</em> system's power for more abstract purposes. We can instantly tell the difference between, say, a sharp curve and a smooth one, without hardly "thinking". We just <em>see</em> it. Instead of using the eye only as a sort of numeric siphon, blindly pumping individual facts between the paper where they've all been remembered and the brain where a few of them can be compared, a graph engages the eye itself in <em>analyzing</em> the whole set of data it represents.
 
 <p>
-Essentially all the tools available to a graphics illustrator <em>and</em> nearly any algorithm available in sophisticated data analysis packages are within reach, for use togehter, when using D3. Its unique design allows full control over the recipe for a given chart, letting you combine whatever ingredients are necessary for your particular visualization. Covering all the drawing features available within browsers and all the statistical and computational geometry algorithms that have been ported to JavaScript is beyond the scope of this book, but rest assured that D3 itself uses enough of both to whet our appetites for what's possible. We'll start with the drawing features and then start adding in some of the algorithms that come bundled with D3.
+A chart feels completely different than a list or table filled with numbers, but to draw one using D3, we can start by building off what we already know. Now, there are many ways of showing data visually; the examples provided here are meant to show the "how" and not necessarily the "why" of a particular chart type. You may think of better ways to show some particular data, and that's great! Hopefully by seeing how some more basic, perhaps even unglamorous (or worse — unsophisticated!) graphs and charts are assembled from both fundamental and more specialized components, you'll be able to apply those patterns in more novel (and certainly more polished) ways.
+
+<p>
+Essentially all the tools available to a graphics illustrator <em>and</em> nearly any algorithm available in sophisticated data analysis packages are within reach, for use togehter, when using D3! Its unique design allows full control over the recipe for a given chart, letting you combine whatever ingredients are necessary for your particular visualization. Covering all the drawing features available within browsers and all the statistical and computational geometry algorithms that have been ported to JavaScript is beyond the scope of this book, but rest assured that D3 itself uses enough of both to whet our appetites for what's possible. We'll start with the drawing features and then start adding in some of the algorithms that come bundled with D3.
 
 <h3>Manipulating SVG’s DOM</h3>
 
@@ -814,6 +836,20 @@ TBD: make sure readers are aware of CSS3 transitions and SVG animation, which ar
 <script>
 
 DATA = {};
+
+DATA.waves = (function () {
+    var data = [],
+        len = 25;
+    for (var i = 0; i < len; i += 1) {
+        var x = i * (2 * Math.PI) / (len-1);
+        data.push({
+            sin: Math.sin(x),
+            // via http://en.wikipedia.org/wiki/Triangle_wave
+            tri: Math.abs(Math.abs((2*x/Math.PI - 1) % 4) - 2) - 1
+        });
+    }
+    return data;
+})();
 
 DATA.squiggle = "M 13.975904,33.253012 C 33.413655,7.2289157 42.409639,8.8353413 42.409639,8.8353413 58.634538,5.4618474 53.012048,28.11245 70.040161,35.02008 90.923695,44.337349 131.72691,7.3895582 131.72691,7.3895582 156.30522,-1.4457832 182.6506,35.180723 182.6506,35.180723";
 
