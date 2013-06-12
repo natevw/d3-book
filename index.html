@@ -208,7 +208,7 @@ svg.append('text').append('textPath').attr('xlink:href', "#squiggle")
 </script>
 
 <p>
-Manipulating SVG tags directly embedded in HTML is hardly any different than manipulating HTML itself: we use D3 to generate a selection of elements and then set attributes on these elements, using each element to display whatever information in whichever way we desire. To do this effectively we must first complete our tour of basic SVG usage. Soon, finally, we will be ready to venture outside of D3's core selection API, and begin borrowing from its fantastic toolchest full of useful utilities.
+Manipulating SVG tags directly embedded in HTML is hardly any different than manipulating HTML itself: we use D3 to generate a selection of elements and then set attributes on these elements, using each element to display whatever information in whichever way we desire. To do this effectively we'll first summarize some basic SVG usage, but soon, finally, we will be poised to venture outside of D3's core selection API, and begin borrowing from its fantastic toolchest full of useful utilities.
 
 <h3>Overview of available SVG elements</h3>
 
@@ -216,7 +216,7 @@ Manipulating SVG tags directly embedded in HTML is hardly any different than man
 If you're already familar with vector graphics, either from other drawing frameworks or even from sketching shapes in an illustration app, great! SVG follows a pretty standard vector drawing model, built on the notion of shapes drawn relative to an invisible, adjustable grid of layers, over top any "earlier" shapes drawn below. In SVG, these vector shapes are called <i>paths</i>, and the layered grids in which the virtual brush moves are called <i>viewports</i>.
 
 <p>
-[TBD: path "shapes" + viewport "layers" graphic?]
+<img src="tilapia_trace.png">
 
 <p>
 Paths can be filled and/or simply left as stroked lines or outlines, and of course things like the colors used and the stroke and fills styles applied are all adjustable. SVG supports transparent colors, as well as even more advanced ways of combining (or "blending") colors with the content below. A more detailed explanation is beyond the scope of this chapter [TBD: appendix? <i>actually I'm wondering if most of <em>this</em> content <em>already belongs</em> to such an appendix!</i>] but here is a summary of how the elements and attributes of SVG determine what will be drawn in the document:
