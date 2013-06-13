@@ -32,13 +32,29 @@
 <i>There are only two hard things in Computer Science: cache invalidation and naming things.</i> <!-- Phil Karlton http://martinfowler.com/bliki/TwoHardThings.html -->
 
 <p>
-At its core, D3.js solves a fundamental problem (perhaps <em>the</em> fundamental problem) of software architecture: synchronizing state between two components of an application — dissimilar components at that. There is an impedance mismatch between JavaScript code and rendered HTML which D3 deftly bridges with only a few short spans.
+At its core, D3.js solves a fundamental problem (perhaps <em>the</em> fundamental problem) of software architecture: synchronizing state between two components of an application — dissimilar components at that. There is an impedance mismatch between the language of JavaScript code and the life of interactive HTML. D3 bridges between these two worlds of logic and presentation in a deft, efficient, and — with practice — an elegant approach.
 
 <p>
-But I digress.
+But that's jumping ahead a bit.
 
 <p>
-D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments", which is an alliterative way of saying that D3.js is a JavaScript library intended for using web pages to show information. It is also an <em>action</em>-filled way to say what we will soon see for ourselves: it's the information, the data, which is emphasized as doing the work. The data ends up driving the visualization.
+D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments". Completely correct, but basically, an alliterative anthem. What does D3 <em>do</em>?
+
+<p>
+On its own, nothing really. When the D3.js library is included in a web page, it does little more than expose its API beneath a single global variable (<code>d3</code>, naturally) and wait for other JavaScript code to make use of it. <em>Your</em> code needs to .
+
+provide the data — whether that be
+decide what should be done with it
+decide how to do it
+
+
+
+D3.js takes  commonly need for effectively presenting all sorts of information, and packages it into a consistent (and relatively small) JavaScript library for use by clientside code.
+
+
+ of saying that D3.js is a JavaScript library intended for using web pages to show information. It is also an <em>action</em>-filled way to say what we will soon see for ourselves: it's the information, the data, which is emphasized as doing the work.  As its homepage at d3js.org promises, "D3 helps you bring data to life using HTML, SVG and CSS."
+<p>
+The data ends up driving the visualization, in an almost declarative (template-like) fashion.
 
 <p>
 D3 is different. It's a visualization library with no "chart" base class which, once instantiated, would insulate you from having to manipulate the DOM. It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
