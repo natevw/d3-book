@@ -38,26 +38,45 @@ At its core, D3.js solves a fundamental problem (perhaps <em>the</em> fundamenta
 But that's jumping ahead a bit.
 
 <p>
-D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments". Completely correct, but basically, an alliterative anthem. What does D3 <em>do</em>?
+D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments". Completely correct, but basically, an alliterative anthem. What does D3 <em>do</em>? On its own, nothing! When the D3.js library is included in a web page, it does little more than export a collection of commonly-needed functions beneath its single global variable (<code>d3</code>, naturally) and wait for some other JavaScript code to make use of it. <em>Your code will control every interaction D3 has with your data and your document.</em> D3 favors the explicit over the implicit, and uses a minimal amount of "magic" or even hidden state to do its work — <em>your</em> work. Yet, as its homepage at d3js.org promises, "D3 helps you bring data to life using HTML, SVG and CSS."
 
 <p>
-On its own, nothing really. When the D3.js library is included in a web page, it does little more than expose its API beneath a single global variable (<code>d3</code>, naturally) and wait for other JavaScript code to make use of it. <em>Your</em> code needs to .
+D3 is unique.
 
-provide the data — whether that be
-decide what should be done with it
-decide how to do it
+<p>
+It's a visualization library, but with no "chart" base class that handles all that HTML, SVG and CSS for you. In fact, it rarely does much to any part of the DOM (the interface a browser exposes for scripts to manipulate HTML, SVG and their styling) on its own, and usually your code ends up directly responsible for adding in low-level elements and setting raw attributes to build the underlying markup that, when rendered by the browser, will display the data. D3 is a visualization library that uses DOM manipulation as its graphics library.
+
+<p>
+It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It doesn't provide a way to move a child node from one parent to another, or to calculate the displayed dimensions of an element, and overall it's even very stingy with "cross-browser compatibility" code to support older or broken user agents. D3 is a DOM manipulation library that leaves the fancy "document object modelling" stuff to the DOM itself (which has gained a lot of standardized luxuries in recent years).
+
+<p>
+It's even something of a web templating language, even though it doesn't really separate code from markup at all — quite the opposite in fact! By borrowing heavily from functional programming concepts, it manages to make imperative code look declarative: you write step-by-step instructions for modifying a document, but those instructions can be read almost as a pattern of the desired result. D3 is not a web templating language, but should feel like one when used properly.
+
+<p>
+What D3 doesn't do is leave you outside a black box, or hand you a big hunk of molded plastic with maybe a few poseable limbs and a couple sound effect buttons. D3 isn't a toy, it's a toolchest. Everything it <em>doesn't</em> do would be unfortunate if D3 was like a plastic model kit. If there were only one correct way to assemble it, why make the user do all the work? In this sense, D3.js is more like a construction set where there's so many possible combination of pieces that imagination becomes more valuable than following instructions.
+
+<p>
+Code is a living thing, though, so food provides a better analogy. To visualize information, we start with something real that's been harvested (or butchered, as the case may be) so its underlying information and packaged up as a "data model".
+
+<pre>
+  [TBD: …D3.js is the kitchen!]
+
+<p>
+It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
+
+<p>
+"All" that D3.js does is package what is commonly needed for 
 
 
 
 D3.js takes  commonly need for effectively presenting all sorts of information, and packages it into a consistent (and relatively small) JavaScript library for use by clientside code.
 
 
- of saying that D3.js is a JavaScript library intended for using web pages to show information. It is also an <em>action</em>-filled way to say what we will soon see for ourselves: it's the information, the data, which is emphasized as doing the work.  As its homepage at d3js.org promises, "D3 helps you bring data to life using HTML, SVG and CSS."
+ of saying that D3.js is a JavaScript library intended for using web pages to show information. It is also an <em>action</em>-filled way to say what we will soon see for ourselves: it's the information, the data, which is emphasized as doing the work.  
 <p>
 The data ends up driving the visualization, in an almost declarative (template-like) fashion.
+</pre>
 
-<p>
-D3 is different. It's a visualization library with no "chart" base class which, once instantiated, would insulate you from having to manipulate the DOM. It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
 
 <p>
 There are really only two core interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
