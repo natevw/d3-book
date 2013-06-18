@@ -44,7 +44,7 @@ D3 stands for "<b>D</b>ata-<b>D</b>riven <b>D</b>ocuments". Completely correct, 
 D3 is unique.
 
 <p>
-It's a visualization library, but with no "chart" base class that handles all that HTML, SVG and CSS for you. In fact, it rarely does much to any part of the DOM (the interface a browser exposes for scripts to manipulate HTML, SVG and their styling) on its own, and usually your code ends up directly responsible for adding in low-level elements and setting raw attributes to build the underlying markup that, when rendered by the browser, will display the data. D3 is a visualization library that uses DOM manipulation as its graphics library.
+It's a visualization library, but with no "chart" base class that handles all that HTML, SVG and CSS for you. In fact, it rarely does much to any part of the DOM (the interface a browser exposes for scripts to manipulate HTML, SVG and their styling) on its own; usually your code ends up directly responsible for adding in low-level elements and setting raw attributes to build the underlying markup that, when rendered by the browser, will display the data. D3 is a visualization library that uses DOM manipulation as its graphics library.
 
 <p>
 It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It doesn't provide a way to move a child node from one parent to another, or to calculate the displayed dimensions of an element, and overall it's even very stingy with "cross-browser compatibility" code to support older or broken user agents. D3 is a DOM manipulation library that leaves the fancy "document object modelling" stuff to the DOM itself (which has gained a lot of standardized luxuries in recent years).
@@ -53,39 +53,43 @@ It's a DOM manipulation library, but with no shorthand for something as useful a
 It's even something of a web templating language, even though it doesn't really separate code from markup at all — quite the opposite in fact! By borrowing heavily from functional programming concepts, it manages to make imperative code look declarative: you write step-by-step instructions for modifying a document, but those instructions can be read almost as a pattern of the desired result. D3 is not a web templating language, but should feel like one when used properly.
 
 <p>
-What D3 doesn't do is leave you outside a black box, or hand you a big hunk of molded plastic with maybe a few poseable limbs and a couple sound effect buttons. D3 isn't a toy, it's a toolchest. Everything it <em>doesn't</em> do would be unfortunate if D3 was like a plastic model kit. If there were only one correct way to assemble it, why make the user do all the work? In this sense, D3.js is more like a construction set where there's so many possible combination of pieces that imagination becomes more valuable than following instructions.
+What D3 doesn't do is leave you outside a black box, or hand you a big hunk of molded plastic with maybe a few poseable limbs and a couple sound effect buttons. D3 isn't a packaged product, it's a toolchest. Everything it <em>doesn't</em> do would be unfortunate if D3 was something like a plastic model kit or puzzle. That is, if there were only one correct way to assemble things, it would hardly be appropriate to leave that work to each of the library's users. But there are <em>many</em> correct ways to assemble the pieces D3.js provides. In this sense, D3 is most like a construction set where there are so many combinations of pieces, imagination and creativity soon become more valuable than following instructions!
 
 <p>
-Code is a living thing, though, so food provides a better analogy. To visualize information, we start with something real that's been harvested (or butchered, as the case may be) so its underlying information and packaged up as a "data model".
+Code is a living thing, though, so food provides an even better analogy. To visualize something, we start with the reality and harvest (or butcher, as the case may be) its data. From all the information in a particular field — simple facts like a company's cashflow or how many listeners are downloading a new music sampler, or more complex realities like a department's morale or a graph of other artists similar to a particular band — concrete numbers, classifications and relationships get separated out and packaged up into a "data model".
+
+<p>
+This data model becomes the main ingredient in a meal for the eyes; the data drives the displayed result. D3.js is "merely" the kitchen in which the meal is prepared! It provides spatulas, mixers, pastry tubes, an oven timer, pots and pans and pestles: tools that help request data from the server, that help form it into desired shapes, that help add flavor or garnish, that coordinate presenting fresh courses at their proper time, and that hold everything together as the meal is prepared. Via a consistently arranged (and relatively small) clientside JavaScript library, D3.js provides all the tools commonly needed to make raw data <em>visible</em>.
+
+<p>
+At first, unfortunately, the task of designing a complex visualization using only a few empty pans, some simple utensils, and which of those large appliances on the counter? can be daunting. Don't worry — this feeling will pass.
+
+<p>
+Think of this book not as sitting down to sample a master chef's modern cuisine, but rather an invitation to lurk in a farmhouse kitchen where everyday meals are made, every day. You'll soon feel right at home. Once you understand the equipment in the cupboard, you'll start recognizing its effects on the raw ingredients. When you sit down at a fancier feast, you'll still see the raw ingredients within, and have a good idea of what it would take to get them to the table yourself. Every chart worth digesting was generated from some sort of raw source data, sometimes with a lot of added garnish, sometimes with a novel culinary technique, but usually cooked up using only a few common tricks.
+
+<p>
+Soon enough, feeling overwhelmed will be replaced with imagination: first imagining the data that went into the next interesting chart you encounter, then imagining the hidden logic that transformed it into that particular visualization, then imagining how you might do something similar with your own harvest of data. This book is not a recipe book — there are too many delicious dishes to list, and even more that still are waiting to be discovered. This book is about showing how each of D3's tools work on their own, then showing how these pieces are usually used together as a whole.
+
+<p>
+You'll likely notice patterns, reused and remixed and even repurposed. D3 doesn't provide many "cookie cutters", but it does tend towards certain repeated motions which can slice and dice <em>anything</em> — not just stamping out some same old graph with only different data. Its components are naturally applied to totally new types of visualization and interaction. D3 handles maps and even apps as well as it handles interactive charts — and it does handle charts very well.
 
 <pre>
-  [TBD: …D3.js is the kitchen!]
-
-<p>
-It's built around a very terse toolkit, one which shows great parsimony in the grammar used to customize its results, yet it allows an infinite variety of graphs, charts, and even entire "apps" to be maintained.
-
-<p>
-"All" that D3.js does is package what is commonly needed for 
+WRAP UP!
 
 
 
-D3.js takes  commonly need for effectively presenting all sorts of information, and packages it into a consistent (and relatively small) JavaScript library for use by clientside code.
-
-
- of saying that D3.js is a JavaScript library intended for using web pages to show information. It is also an <em>action</em>-filled way to say what we will soon see for ourselves: it's the information, the data, which is emphasized as doing the work.  
-<p>
-The data ends up driving the visualization, in an almost declarative (template-like) fashion.
+D3.js [needs your help filling "custom logic" holes, but is more of a grammar needing borrowed adverbs than a fill-in-the-blank template]
 </pre>
 
+
+
+
+<h3>Combining documents and data</h3>
+…
 
 <p>
 There are really only two core interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
 
-<p>
-At first, unfortunately, the task of designing a complex visualization using only a few simple constructs can be daunting. Don't worry — this feeling will pass.
-
-<p>
-Soon enough, feeling overwhelmed will be replaced with <em>seeing</em> powerfully: first seeing the underlying data, then seeing the hidden logic that transformed it into a visualization, and always seeing the same patterns, reused and remixed and even repurposed. It <em>is</em> resuable patterns that D3 provides, just not usually at the "chart" level. D3 captures patterns which can be reused for <em>anything</em> — not just stamping out some same old graph with only different data. D3's patterns are naturally reusable for totally new types of visualization and interaction! D3 handles maps and apps as well as it handles interactive charts — and it does handle the latter very well.
 
 <p>
 Look at this:
@@ -118,22 +122,6 @@ What has changed?
 
 <p>
 … discussion of sorting …
-
-<p>
-This book is not a recipe book — there are too many delicious dishes to enumerate, and even more that should be invented.
-D3.js [needs your help filling "custom logic" holes, but is more of a grammar needing borrowed adverbs than a fill-in-the-blank template]
-
-<p>
-Instead this book is about:
-[
-<li>showing how things really work in the small
-<li>showing how these pieces are usually fit together as a whole
-]
-
-
-<h3>Combining documents and data</h3>
-…
- 
 
 
 <h3>Selecting past, present and future elements</h3>
