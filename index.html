@@ -50,13 +50,44 @@ It's a visualization library, but with no "chart" base class that handles all th
 It's a DOM manipulation library, but with no shorthand for something as useful as toggling an element's style to an opposite state. It doesn't provide a way to move a child node from one parent to another, or to calculate the displayed dimensions of an element, and overall it's even very stingy with "cross-browser compatibility" code to support older or broken user agents. D3 is a DOM manipulation library that leaves the fancy "document object modelling" stuff to the DOM itself (which has gained a lot of standardized luxuries in recent years).
 
 <p>
-It's even something of a web templating language, even though it doesn't really separate code from markup at all — quite the opposite in fact! By borrowing heavily from functional programming concepts, it manages to make imperative code look declarative: you write step-by-step instructions for modifying a document, but those instructions can be read almost as a pattern of the desired result. D3 is not a web templating language, but should feel like one when used properly.
+It's even something of a web templating language, even though it doesn't really separate code from markup at all — quite the opposite in fact! By borrowing heavily from functional programming concepts, it manages to make imperative code look declarative: you write step-by-step instructions for modifying a document, but those instructions can be read almost as a pattern of the desired result. D3 is not a web templating language, but should feel sort of like one when used properly.
 
 <p>
-What D3 doesn't do is leave you outside a black box, or hand you a big hunk of molded plastic with maybe a few poseable limbs and a couple sound effect buttons. D3 isn't a packaged product, it's a toolchest. Everything it <em>doesn't</em> do would be unfortunate if D3 was something like a plastic model kit or puzzle. That is, if there were only one correct way to assemble things, it would hardly be appropriate to leave that work to each of the library's users. But there are <em>many</em> correct ways to assemble the pieces D3.js provides. In this sense, D3 is most like a construction set where there are so many combinations of pieces, imagination and creativity soon become more valuable than following instructions!
+What D3 doesn't do is leave you outside a black box, or hand you a big hunk of molded plastic with maybe a few poseable limbs and a couple sound effect buttons. D3 isn't a packaged product, it's a toolchest. Everything it <em>doesn't</em> do would be unfortunate if D3 was something like a plastic model kit or puzzle. That is, if there were only one correct way to assemble things, it would hardly be appropriate to leave that work to each of the library's users. But there are <em>many</em> correct ways to assemble the pieces D3.js provides. In this sense, D3 is most like a construction set where there are so many combinations of pieces. Imagination and creativity soon become more valuable than following instructions!
 
 <p>
-Code is a living thing, though, so food provides an even better analogy. To visualize something, we start with the reality and harvest (or butcher, as the case may be) its data. From all the information in a particular field — simple facts like a company's cashflow or how many listeners are downloading a new music sampler, or more complex realities like a department's morale or a graph of other artists similar to a particular band — concrete numbers, classifications and relationships get separated out and packaged up into a "data model".
+Here are three ways of visualizing the exact same data set:
+
+<div></div>
+<script type="x-book/x-sample" data-hidden>
+d3.select(this).append('ul').selectAll('li').data(majorElements)
+    .enter().append('li').text(String);
+
+d3.select(this).append('div').selectAll('span').data(majorElements)
+    .enter().append('span').style('width', function (d) { return d.length + 'em'; })
+    .style({height: "1em", background:"blue", display:"block", margin: "2px"});
+
+var letters = majorElements.reduce(function (o, d) {
+    Array.prototype.slice.call(d).forEach(function (l) { var c = o[l] || (o[l] = 0); o[l] = c + 1; });
+    return o;
+}, {});
+
+d3.select(this).append('div').selectAll('span').data(d3.entries(letters))
+    .enter().append('span').style('width', function (d) { return d.value + 'em'; }).text(function (d) { return d.key; })
+    .style({height: "1em", background:"red", display:"block", margin: "2px", 'text-align':"center"});
+
+d3.selectAll(this.children).style('float', "left");
+d3.select(this).append('div').style('clear', "both");
+</script>
+
+<p>
+The first is just a plain view of the data, a list of the six chemicals which serve as the primary building blocks of most living organisms. The second is a simple graph of how many letters are in each of their names. The third counts the frequency of each letter through the whole dataset, and displays the resulting statistics.
+
+<p>
+If we had more useful data than just a list of names — if, say, for every chemical element we also had recorded its unique number of protons — we could perform more useful visual variations. We could arrange or graph them according to this more meaningful number, or even arrange the elements not only in correct order but also so the visual distance between each was proportional to the difference in atomic number. There are countless ways of displaying even the simplest data, and D3 is able to help with any, no matter how unexpected it would be.
+
+<p>
+Code is a living thing too, though, so food provides an even better analogy than construction sets or nutrient building blocks. To visualize something, we start with the reality and harvest (or butcher, as the case may be) its data. From all the information in a particular field — simple facts like a company's cashflow or how many listeners are downloading a new music sampler, or more complex realities like a department's morale or a graph of other artists similar to a particular band — concrete numbers, classifications and relationships get separated out and packaged up into a "data model".
 
 <p>
 This data model becomes the main ingredient in a meal for the eyes; the data drives the displayed result. D3.js is "merely" the kitchen in which the meal is prepared! It provides spatulas, mixers, pastry tubes, an oven timer, pots and pans and pestles: tools that help request data from the server, that help form it into desired shapes, that help add flavor or garnish, that coordinate presenting fresh courses at their proper time, and that hold everything together as the meal is prepared. Via a consistently arranged (and relatively small) clientside JavaScript library, D3.js provides all the tools commonly needed to make raw data <em>visible</em>.
@@ -65,7 +96,7 @@ This data model becomes the main ingredient in a meal for the eyes; the data dri
 At first, unfortunately, the task of designing a complex visualization using only a few empty pans, some simple utensils, and which of those large appliances on the counter? can be daunting. Don't worry — this feeling will pass.
 
 <p>
-Think of this book not as sitting down to sample a master chef's modern cuisine, but rather an invitation to lurk in a farmhouse kitchen where everyday meals are made, every day. You'll soon feel right at home. Once you understand the equipment in the cupboard, you'll start recognizing its effects on the raw ingredients. When you sit down at a fancier feast, you'll still see the raw ingredients within, and have a good idea of what it would take to get them to the table yourself. Every chart worth digesting was generated from some sort of raw source data, sometimes with a lot of added garnish, sometimes with a novel culinary technique, but usually cooked up using only a few common tricks.
+Think of this book not as sitting down to sample a master chef's modern cuisine, but rather an invitation to lurk in a farmhouse kitchen where everyday meals are made, every day. You'll soon feel right at home. Once you understand the equipment in the cupboard, you'll start recognizing its effects on the raw ingredients. When you sit down at a fancier feast, you'll be able to see the raw ingredients which went into it, and have a good idea of what it would take to get them to the table yourself. Every chart worth digesting was generated from some sort of raw source data, sometimes with a lot of added garnish, sometimes with a novel culinary technique, but usually cooked up using only a few common tricks.
 
 <p>
 Soon enough, feeling overwhelmed will be replaced with imagination: first imagining the data that went into the next interesting chart you encounter, then imagining the hidden logic that transformed it into that particular visualization, then imagining how you might do something similar with your own harvest of data. This book is not a recipe book — there are too many delicious dishes to list, and even more that still are waiting to be discovered. This book is about showing how each of D3's tools work on their own, then showing how these pieces are usually used together as a whole.
@@ -73,55 +104,28 @@ Soon enough, feeling overwhelmed will be replaced with imagination: first imagin
 <p>
 You'll likely notice patterns, reused and remixed and even repurposed. D3 doesn't provide many "cookie cutters", but it does tend towards certain repeated motions which can slice and dice <em>anything</em> — not just stamping out some same old graph with only different data. Its components are naturally applied to totally new types of visualization and interaction. D3 handles maps and even apps as well as it handles interactive charts — and it does handle charts very well.
 
-<pre>
-WRAP UP!
+<p>
+In the biochemistry example above, each of the three ways of making data visible uses D3 in about the same way; when preparing them I literally copy-pasted the code for the first and made only a few "minor" code changes for the next two. At a glance, the lines of code look very similar, while the results on screen are very distinct. By learning to see the patterns (the similarities in how <em>every</em> visualization is made) you will also begin to quickly understand the <em>differences</em> as well.
 
-
-
-D3.js [needs your help filling "custom logic" holes, but is more of a grammar needing borrowed adverbs than a fill-in-the-blank template]
-</pre>
-
-
-
+<p>
+D3 is a relatively simple library, and we'll start simply too. We will not even worry about graphics (i.e. using SVG) until the next chapter, once we've learned a few fundamentals first. We can make raw data visible with only HTML and CSS, so we'll start by looking at D3's DOM manipulating and web templating aspects without the usual full-color graphical visualization aspect. Let's see some code bring D3's inert building blocks to life!
 
 <h3>Combining documents and data</h3>
-…
+
+<p>
+The foundation of D3 is a <i>selection</i> of elements:
+
+<p>
+<code>d3.selectAll('.macronutrient');</code>
+
+
+<pre style="font-style: italic">
+TBD: fold next paragraph into more "hands-on" beginning above
+</pre>
 
 <p>
 There are really only two core interactions that make this all work: <i>bound selections</i> and a few basic code-controlled <i>operators</i> applied upon them. These are the matter and <!-- potential --> energy, respectively, of D3's universe. Or, to use an even better analogy from a slightly higher realm, they are the raw amino acids <em>plus</em> the DNA which together can form proteins, which can then build cells, which may form entire systems and ecosystems. Biology has discovered that only six major chemical elements (and little doses of a dozen or so micronutrients) compose any living thing — from a prokaryote to a plant to a person. <!-- http://en.wikipedia.org/wiki/Biochemistry#Starting_materials:_the_chemical_elements_of_life --> Similarly, there are only a few core methods for working with D3 selections, but the different designs recorded in our operator logic will flower into a myriad of results.
-
-
-<p>
-Look at this:
-
-<div>[three ways of seeing the same data]</div>
-<script type="x-book/x-sample">
-var majorElements = ["carbon", "hydrogen", "nitrogen", "oxygen", "calcium", "phosphorus"];
-
-// list
-// horizontal bars (character length)
-// labeled vertical bars
-</script>
-
-<p>
-… discussion of each …
-
-<p>
-If we had more useful data — if for every chemical element we also had recorded its unique number of protons — we could perform more useful variations on the visualization. We could sort by this more meaningful number, or even arrange the elements not only in correct order but also so the visual distance between each was proportional to the difference in atomic number.
-
-<p>
-By learning to see the patterns, the similarities between how <em>every</em> visualization is made, you will also begin to quickly understand the <em>differences</em> as well.
-
-<p>
-What has changed?
-
-<div>[each display above, but now sorted alphabetically]</div>
-<script type="x-book/x-sample">
-// ± repeat above but with sorting added
-</script>
-
-<p>
-… discussion of sorting …
+</pre>
 
 
 <h3>Selecting past, present and future elements</h3>
@@ -889,6 +893,8 @@ DATA.waves = (function () {
     }
     return data;
 })();
+
+DATA.majorElements = ["carbon", "hydrogen", "nitrogen", "oxygen", "calcium", "phosphorus"];
 
 DATA.squiggle = "M 13.975904,33.253012 C 33.413655,7.2289157 42.409639,8.8353413 42.409639,8.8353413 58.634538,5.4618474 53.012048,28.11245 70.040161,35.02008 90.923695,44.337349 131.72691,7.3895582 131.72691,7.3895582 156.30522,-1.4457832 182.6506,35.180723 182.6506,35.180723";
 
