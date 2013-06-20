@@ -118,9 +118,20 @@ The foundation of D3 is a <i>selection</i> of elements:
 <p>
 <code>d3.selectAll('.macronutrient');</code>
 
+<p>
+This returns an <code>Array</code> of all elements matching the given CSS selector, i.e. any element in the page with a "macronutrient" class set. While they're always available, we don't usually use the JavaScript Array methods to loop through these elements. Instead, D3 provides its own <i>operators</i> on every selection:
+
+<p>
+<code>d3.selectAll('.macronutrient').style('color', "cyan");</code>
+
+<p>
+If you've used other DOM wrapper libraries, this probably looks familiar. Being able to apply operators to selections is handy, but it's not AMAZINGLY AWESOME and it's certainly not unique. All we've done so far is document manipulation, we haven't used data to drive it!
+
+<p>
+<code>d3.selectAll('.macronutrient').data(macronutrients).style('color', function (nutrient) { return nutrient.color; });</code>
 
 <pre style="font-style: italic">
-TBD: fold next paragraph into more "hands-on" beginning above
+TBD: continue on, maybe keep folding more ideas from next paragraph into more direct "hands-on" beginning above
 </pre>
 
 <p>
